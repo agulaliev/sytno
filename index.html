@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Сытно">
+<meta name="theme-color" content="#ECEFE9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111512" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>Сытно дома</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: одна колонка как приложение на телефоне, max 560px, нижняя панель вкладок; карточка блюда — главный объект */
+:root{
+  --bg:#ECEFE9; --surface:#FAFBF8; --surface-2:#E1E6DD; --ink:#1A201C; --muted:#5A655D; --line:#CBD3C8;
+  --accent:#A3223A; --accent-ink:#FFF5F3; --accent-soft:#F3DCE0;
+  --herb:#2E6842; --herb-soft:#D9EADD; --warn:#9A5600; --warn-soft:#F6E4C8; --danger:#B4232F; --danger-soft:#F7D9DB;
+  --display:'Unbounded','Arial Black',system-ui,sans-serif;
+  --body:'Onest',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111512; --surface:#191F1B; --surface-2:#232B25; --ink:#E6EBE4; --muted:#98A59B; --line:#2E3832;
+  --accent:#E25A6F; --accent-ink:#1C0D10; --accent-soft:#3B1D24;
+  --herb:#7CBB8D; --herb-soft:#1D3325; --warn:#E5A24C; --warn-soft:#382916; --danger:#F07A80; --danger-soft:#3D1C1F;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111512; --surface:#191F1B; --surface-2:#232B25; --ink:#E6EBE4; --muted:#98A59B; --line:#2E3832;
+  --accent:#E25A6F; --accent-ink:#1C0D10; --accent-soft:#3B1D24;
+  --herb:#7CBB8D; --herb-soft:#1D3325; --warn:#E5A24C; --warn-soft:#382916; --danger:#F07A80; --danger-soft:#3D1C1F;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+button,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{max-width:560px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px));padding-block:calc(10px + env(safe-area-inset-top,0px)) calc(110px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:20px;line-height:1.25;letter-spacing:-0.01em}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+button{font-family:inherit;cursor:pointer}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-block:8px 16px}
+.brand{font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-0.02em;white-space:nowrap}
+.brand span{color:var(--accent)}
+.sync{font-size:12px;color:var(--muted);text-align:right}
+.stack{display:flex;flex-direction:column;gap:14px}
+.label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.hero{padding:18px}
+.kicker{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.desc{color:var(--muted);margin-top:6px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.meta span{font-size:13px;padding:4px 9px;border-radius:999px;background:var(--surface-2);font-variant-numeric:tabular-nums}
+.meta .prot{background:var(--herb-soft);color:var(--herb);font-weight:600}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button,.chip{font-size:14px;font-weight:500;padding:8px 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.seg button[aria-pressed="true"],.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.ban[aria-pressed="true"]{background:var(--danger-soft);color:var(--danger);border-color:var(--danger)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.btn{font-size:14px;font-weight:500;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:10px}
+.btn[aria-pressed="true"].like{background:var(--herb-soft);color:var(--herb);border-color:var(--herb)}
+.btn[aria-pressed="true"].dis{background:var(--danger-soft);color:var(--danger);border-color:var(--danger)}
+button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.actions .primary{margin-left:auto}
+details{margin-top:14px}
+summary{font-weight:600;cursor:pointer}
+.ings{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column}
+.ings li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.ings li span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted)}
+.ings li.have span:first-child::after{content:" · есть";color:var(--herb);font-size:13px}
+.steps{margin:10px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
+.badge{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.b-new{background:var(--herb-soft);color:var(--herb)}
+.b-warn{background:var(--warn-soft);color:var(--warn)}
+.b-danger{background:var(--danger-soft);color:var(--danger)}
+.b-acc{background:var(--accent-soft);color:var(--accent)}
+.note{padding:12px 14px;border-radius:14px;background:var(--warn-soft);color:var(--ink)}
+.note b{color:var(--warn)}
+.plan{background:var(--herb-soft);border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.plan b{color:var(--herb)}
+.list{display:flex;flex-direction:column}
+.item{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item .grow{flex:1;min-width:0}
+.linkish{background:none;border:0;padding:0;color:var(--ink);font:inherit;font-weight:600;text-align:left}
+.linkish:hover{color:var(--accent)}
+.day{display:grid;grid-template-columns:52px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.day:last-child{border-bottom:0}
+.day .dt{font-variant-numeric:tabular-nums;text-align:center;padding-top:2px}
+.day .dt b{display:block;font-family:var(--display);font-size:20px;line-height:1}
+.day .dt span{font-size:12px;color:var(--muted)}
+.day.today .dt b{color:var(--accent)}
+.day .body{min-width:0;display:flex;flex-direction:column;gap:6px}
+.dline{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+.sub{font-size:13px;color:var(--muted)}
+.sub b{color:var(--ink);font-weight:500}
+.tl{display:grid;grid-template-columns:46px 1fr;gap:6px 10px;margin-top:10px;font-size:14px}
+.tl .t{font-variant-numeric:tabular-nums;color:var(--muted)}
+.tl .pass{color:var(--muted);font-style:italic}
+.shop{list-style:none;margin:0;padding:0}
+.shop li{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line)}
+.shop li:last-child{border-bottom:0}
+.shop label{flex:1;min-width:0;display:flex;gap:10px;align-items:center;cursor:pointer}
+.shop input{width:20px;height:20px;accent-color:var(--accent);flex:none}
+.shop .q{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.shop li.done .nm{text-decoration:line-through;color:var(--muted)}
+.sec{margin-top:12px}
+.sec:first-child{margin-top:0}
+.bar{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:var(--herb)}
+.addrow{display:flex;gap:8px;flex-wrap:wrap}
+.addrow input{flex:1;min-width:0;font:inherit;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.empty{text-align:center;padding:28px 12px}
+.empty p{margin-bottom:14px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav.tabs .inner{display:flex;max-width:560px;margin:0 auto;gap:2px}
+nav.tabs button{flex:1;min-width:0;font-size:12px;font-weight:600;padding:11px 2px;border:0;background:none;color:var(--muted);border-radius:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+nav.tabs button[aria-current="true"]{color:var(--accent);background:var(--accent-soft)}
+dialog#sheet{border:0;padding:0;width:calc(100% - 24px);max-width:560px;border-radius:20px;background:var(--surface);color:var(--ink)}
+dialog#sheet::backdrop{background:rgba(8,12,9,.55)}
+.sheet-in{padding:18px;max-height:82vh;overflow:auto}
+.sheet-x{float:right;margin:-4px -4px 0 8px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;max-width:calc(100% - 32px);z-index:10}
+.tip ol{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+textarea.copy{width:100%;min-height:160px;font:13px/1.5 var(--body);border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">Сытно<span>.</span> дома</div>
+    <div class="sync" id="sync"></div>
+  </header>
+  <main id="view"></main>
+</div>
+<nav class="tabs" aria-label="Разделы"><div class="inner">
+  <button data-act="tab" data-tab="now">Сейчас</button>
+  <button data-act="tab" data-tab="week">Неделя</button>
+  <button data-act="tab" data-tab="shop">Покупки</button>
+  <button data-act="tab" data-tab="fridge">Запасы</button>
+  <button data-act="tab" data-tab="dishes">Блюда</button>
+</div></nav>
+<dialog id="sheet"><div class="sheet-in" id="sheetIn"></div></dialog>
+<div id="toast" hidden></div>
+
+<script>
+const SEC={meat:'Мясо и птица',dairy:'Молочное и яйца',veg:'Овощи и зелень',grain:'Крупы и макароны',pantry:'Бакалея',frozen:'Заморозка',ready:'Заготовки'};
+const ING={
+  chicken_thigh:['Куриное бедро, филе','meat',2],
+  chicken_legs:['Куриные голени или окорочка','meat',2],
+  chicken_breast:['Куриное филе','meat',2],
+  turkey:['Филе индейки','meat',2],
+  turkey_mince:['Фарш из индейки','meat',1],
+  beef:['Говядина, лопатка','meat',3],
+  mince:['Фарш говяжий','meat',1],
+  eggs:['Яйца','dairy',25],
+  tvorog:['Творог 5–9%','dairy',4],
+  cheese:['Сыр твёрдый','dairy',14],
+  processed_cheese:['Плавленый сыр','dairy',14],
+  smetana:['Сметана 15–20%','dairy',7],
+  cream:['Сливки 20%','dairy',5],
+  butter:['Сливочное масло','dairy',30],
+  potato:['Картофель','veg',30],
+  onion:['Лук репчатый','veg',30],
+  carrot:['Морковь','veg',21],
+  garlic:['Чеснок','veg',30],
+  cabbage:['Капуста белокочанная','veg',14],
+  tomatoes:['Помидоры','veg',5],
+  cucumbers:['Огурцы','veg',5],
+  bell_pepper:['Перец болгарский','veg',7],
+  greens:['Зелень: укроп, петрушка, кинза','veg',4],
+  frozen_veg:['Овощная смесь замороженная','frozen',90],
+  rice:['Рис','grain',365],
+  buckwheat:['Гречка','grain',365],
+  bulgur:['Булгур','grain',365],
+  pasta:['Макароны','grain',365],
+  oats:['Овсяные хлопья','grain',180],
+  tomato_paste:['Томатная паста','pantry',30],
+  canned_tomatoes:['Томаты в собственном соку','pantry',365],
+  flour:['Мука','pantry',365,1],
+  oil:['Растительное масло','pantry',365,1],
+  paprika:['Паприка','pantry',365,1],
+  khmeli:['Хмели-сунели','pantry',365,1],
+  zira:['Зира','pantry',365,1],
+  cooked_grain:['Готовый гарнир (рис или гречка)','ready',3],
+  cutlets:['Котлеты из заготовки','ready',2],
+  baked_meat:['Запечённая индейка','ready',4],
+  boiled_eggs:['Варёные яйца','ready',5],
+  muffins:['Яичные маффины','ready',3]
+};
+const KIND={batch:'Заготовка на 2 дня',quick:'Быстро, с нуля',build:'Из заготовки',snack:'Перекус',base:'Основа'};
+
+const DISHES=[
+{id:'gulyash',name:'Гуляш из говядины',kind:'batch',cui:'Домашняя',tool:'мультиварка',active:15,total:110,serves:4,keep:2,prot:45,cost:230,
+ desc:'Мягкая говядина в томатно-сметанной подливе, к ней макароны. Мультиварка тушит сама полтора часа.',
+ ings:[['beef',800,'г'],['onion',2,'шт'],['carrot',1,'шт'],['tomato_paste',2,'ст.л.'],['smetana',150,'г'],['garlic',2,'зубч.'],['paprika',1,'ч.л.'],['oil',1,'ст.л.'],['pasta',320,'г']],
+ steps:['Нарежь говядину кубиками по 3 см, лук полукольцами, морковь натри на крупной тёрке.','Мультиварка, режим «Жарка», 10 минут: масло и мясо, через 5 минут лук и морковь.','Добавь томатную пасту, паприку, 1 ч.л. соли и 400 мл горячей воды. Режим «Тушение» на 1,5 часа. Можно уходить.','За 10 минут до конца вмешай сметану и давленый чеснок.','Макароны отвари по инструкции на пачке. Гуляш и макароны храни в разных контейнерах.'],
+ prep:[[0,10,'Гуляш: нарезать мясо, лук, морковь',1],[10,8,'Гуляш: обжарить, залить водой с пастой, включить «Тушение» 1,5 ч',1],[18,85,'Гуляш тушится сам',0],[103,12,'Гуляш: вмешать сметану и чеснок, сварить макароны',1]]},
+{id:'plov',name:'Плов с говядиной',kind:'batch',cui:'Кавказская',tool:'мультиварка',active:20,total:80,serves:4,keep:2,prot:33,cost:190,
+ desc:'Рассыпчатый рис, говядина, много моркови и целая головка чеснока. В мультиварке на режиме «Плов».',
+ ings:[['beef',600,'г'],['rice',400,'г'],['carrot',3,'шт'],['onion',2,'шт'],['garlic',1,'головка'],['zira',1,'ч.л.'],['oil',3,'ст.л.']],
+ steps:['Нарежь мясо кубиками по 2 см, лук полукольцами, морковь соломкой или на крупной тёрке.','«Жарка» 15 минут: масло, мясо и лук до румяности, потом морковь, 1,5 ч.л. соли и зира.','Промой рис до прозрачной воды. Выложи ровным слоем поверх мяса и не перемешивай. Воткни в центр целую головку чеснока.','Залей горячей водой на 1,5 см выше риса. Режим «Плов» или «Крупа». Можно уходить.','После сигнала перемешай и дай постоять 10 минут.'],
+ prep:[[0,8,'Плов: нарезать мясо, лук, морковь',1],[8,15,'Плов: обжарить, промыть рис, залить, включить «Плов»',1],[23,50,'Плов готовится сам',0],[73,3,'Плов: перемешать, разложить по контейнерам',1]]},
+{id:'chick_potato',name:'Курица с картошкой в духовке',kind:'batch',cui:'Домашняя',tool:'духовка',active:15,total:70,serves:4,keep:2,prot:40,cost:140,
+ desc:'Как у мамы: картошка, лук и курица в сметане с чесноком. Всё в одну форму, остальное делает духовка.',
+ ings:[['chicken_legs',1200,'г'],['potato',1200,'г'],['onion',2,'шт'],['smetana',150,'г'],['garlic',4,'зубч.'],['paprika',1,'ч.л.'],['oil',2,'ст.л.']],
+ steps:['Включи духовку на 200°.','Картошку нарежь крупными дольками, лук кольцами. Сложи в форму, посоли, полей маслом и перемешай руками.','Смешай сметану, давленый чеснок, паприку и 1 ч.л. соли. Обмажь курицу и выложи сверху на картошку.','50 минут в духовке, ничего не трогай.','Готово, когда картошка легко протыкается ножом, а сок у кости курицы прозрачный.'],
+ prep:[[0,15,'Курица с картошкой: нарезать, обмазать, сложить в форму',1],[15,50,'Курица с картошкой в духовке, 200°',0],[65,5,'Курица с картошкой: остудить, разложить',1]]},
+{id:'tefteli',name:'Тефтели в томатно-сметанной подливе',kind:'batch',cui:'Домашняя',tool:'духовка',active:25,total:75,serves:4,keep:2,prot:38,cost:170,
+ desc:'Фарш с рисом, запечённый в подливе. Без жарки: 20 минут в духовке, потом заливаешь соусом.',
+ ings:[['mince',800,'г'],['rice',80,'г'],['onion',2,'шт'],['eggs',1,'шт'],['tomato_paste',2,'ст.л.'],['smetana',200,'г'],['garlic',2,'зубч.'],['buckwheat',280,'г']],
+ steps:['Рис для тефтелей отвари 10 минут и остуди. Духовку на 200°.','Одну луковицу натри на тёрке, смешай с фаршем, рисом, яйцом и 1 ч.л. соли. Скатай 16 шариков в форму.','20 минут в духовке.','Пока запекаются: вторую луковицу мелко, смешай со сметаной, пастой, чесноком и 300 мл воды.','Залей тефтели соусом и верни в духовку ещё на 25 минут. Гречку свари параллельно.'],
+ prep:[[0,12,'Тефтели: отварить рис, натереть лук',1],[12,13,'Тефтели: замесить фарш, скатать, в духовку',1],[25,20,'Тефтели запекаются',0],[45,5,'Тефтели: залить соусом',1],[50,25,'Тефтели томятся в соусе',0],[75,3,'Тефтели: разложить по контейнерам',1]]},
+{id:'chakhokhbili',name:'Чахохбили',kind:'batch',cui:'Кавказская',tool:'плита',active:20,total:65,serves:4,keep:2,prot:38,cost:140,
+ desc:'Грузинская курица, тушённая с луком и помидорами. Хмели-сунели и чеснок, без остроты.',
+ ings:[['chicken_legs',1200,'г'],['onion',3,'шт'],['canned_tomatoes',1,'банка'],['garlic',4,'зубч.'],['khmeli',2,'ч.л.'],['greens',1,'пучок'],['rice',280,'г']],
+ steps:['Если курица целыми окорочками, разрежь по суставу. Лук полукольцами.','В сухой сотейник курицу кожей вниз, средний огонь, 10 минут до румяности. Масло не нужно, жир вытопится сам.','Добавь лук на 5 минут, потом томаты (раздави ложкой), хмели-сунели и 1 ч.л. соли.','Крышка, слабый огонь, 30 минут. Мешать не нужно. В мультиварке: «Тушение» 40 минут.','В конце давленый чеснок и рубленая зелень. Рис свари параллельно.'],
+ prep:[[0,8,'Чахохбили: разрезать курицу, нарезать лук',1],[8,15,'Чахохбили: обжарить курицу и лук, добавить томаты',1],[23,30,'Чахохбили тушится под крышкой',0],[53,6,'Чахохбили: чеснок, зелень, разложить',1]]},
+{id:'kotlety',name:'Котлеты из индейки в духовке',kind:'batch',cui:'Домашняя',tool:'духовка',active:20,total:45,serves:4,keep:2,prot:42,cost:160,yields:'cutlets',
+ desc:'Почти как покупные, только свои. Без жарки, на пергаменте. Лишние можно заморозить сырыми.',
+ ings:[['turkey_mince',900,'г'],['onion',1,'шт'],['eggs',1,'шт'],['oats',3,'ст.л.'],['garlic',2,'зубч.'],['smetana',100,'г'],['buckwheat',280,'г']],
+ steps:['Духовку на 200°, противень застели пергаментом.','Лук натри на мелкой тёрке. Смешай с фаршем, яйцом, хлопьями, чесноком и 1 ч.л. соли. Дай постоять 5 минут.','Мокрыми руками слепи 12 котлет и выложи на пергамент.','25 минут в духовке. Переворачивать не нужно.','Гречку свари параллельно, подавай со сметаной. Лишние сырые котлеты заморозь на доске, потом пересыпь в пакет.'],
+ prep:[[0,8,'Котлеты: натереть лук, замесить фарш',1],[8,10,'Котлеты: слепить, в духовку',1],[18,25,'Котлеты запекаются',0],[43,5,'Котлеты: остудить, в контейнер',1]]},
+{id:'podliva',name:'Рис с куриной подливой',kind:'batch',cui:'Домашняя',tool:'мультиварка',active:15,total:55,serves:4,keep:2,prot:36,cost:120,
+ desc:'Тот самый рис с мясной подливой. Куриное бедро, лук, морковь, сметана и томат.',
+ ings:[['chicken_thigh',800,'г'],['onion',2,'шт'],['carrot',1,'шт'],['tomato_paste',2,'ст.л.'],['smetana',150,'г'],['flour',1,'ст.л.'],['garlic',2,'зубч.'],['rice',280,'г']],
+ steps:['Бёдра нарежь кусочками, лук мелко, морковь на тёрке.','«Жарка» 10 минут: курица, потом лук и морковь.','Вмешай муку, пасту, 1 ч.л. соли и 400 мл воды. «Тушение» 30 минут.','В конце сметана и чеснок, размешай.','Рис свари отдельно. Подливу храни отдельно от риса.'],
+ prep:[[0,8,'Подлива: нарезать курицу, лук, морковь',1],[8,10,'Подлива: обжарить, залить водой, «Тушение» 30 мин',1],[18,30,'Подлива тушится',0],[48,5,'Подлива: сметана, чеснок, разложить',1]]},
+{id:'golubtsy',name:'Ленивые голубцы в духовке',kind:'batch',cui:'Домашняя',tool:'духовка',active:25,total:80,serves:4,keep:2,prot:30,cost:120,
+ desc:'Вкус голубцов без заворачивания. Капуста внутри, отдельно её почти не видно. Гарнир не нужен.',
+ ings:[['mince',600,'г'],['rice',120,'г'],['cabbage',400,'г'],['onion',1,'шт'],['carrot',1,'шт'],['eggs',1,'шт'],['tomato_paste',2,'ст.л.'],['smetana',200,'г']],
+ steps:['Рис отвари 10 минут. Капусту нашинкуй мелко, залей кипятком на 5 минут и отожми.','Духовку на 200°. Смешай фарш, рис, капусту, яйцо, тёртый лук и 1 ч.л. соли. Слепи 12 овальных котлет в форму.','20 минут в духовке.','Смешай сметану, пасту, тёртую морковь и 300 мл воды. Залей голубцы.','Ещё 25 минут в духовке.'],
+ prep:[[0,15,'Голубцы: отварить рис, нашинковать и ошпарить капусту',1],[15,10,'Голубцы: замесить, слепить, в духовку',1],[25,20,'Голубцы запекаются',0],[45,5,'Голубцы: залить соусом',1],[50,25,'Голубцы томятся в соусе',0],[75,3,'Голубцы: разложить',1]]},
+{id:'kharcho',name:'Харчо с говядиной',kind:'batch',cui:'Кавказская',tool:'мультиварка',active:15,total:100,serves:4,keep:2,prot:28,cost:130,
+ desc:'Густой грузинский суп с говядиной, рисом и томатами. Мягкий, без жгучего перца.',
+ ings:[['beef',500,'г'],['rice',100,'г'],['onion',2,'шт'],['canned_tomatoes',1,'банка'],['garlic',3,'зубч.'],['khmeli',2,'ч.л.'],['greens',1,'пучок']],
+ steps:['Говядину нарежь кусочками по 2 см, залей 2 л воды в мультиварке. Режим «Суп» на 1 час. Можно уходить.','Через час добавь мелко нарезанный лук, промытый рис, томаты, хмели-сунели и 1,5 ч.л. соли. Ещё 25 минут.','В конце давленый чеснок и зелень, дай настояться 10 минут.'],
+ prep:[[0,5,'Харчо: нарезать мясо, залить водой, «Суп» 1 ч',1],[5,60,'Харчо: бульон варится',0],[65,5,'Харчо: добавить рис, лук, томаты, специи',1],[70,25,'Харчо доваривается',0],[95,3,'Харчо: чеснок и зелень',1]]},
+{id:'grechka_kup',name:'Гречка по-купечески с курицей',kind:'batch',cui:'Домашняя',tool:'мультиварка',active:15,total:60,serves:4,keep:2,prot:40,cost:110,
+ desc:'Мясо и гарнир сразу в одной чаше. Гречка пропитывается соком курицы.',
+ ings:[['chicken_thigh',700,'г'],['buckwheat',300,'г'],['onion',1,'шт'],['carrot',1,'шт'],['tomato_paste',1,'ст.л.'],['smetana',100,'г']],
+ steps:['Бёдра нарежь кусочками, лук мелко, морковь на тёрке.','«Жарка» 10 минут: курица, потом лук, морковь и паста.','Промой гречку, высыпь сверху, добавь 1,5 ч.л. соли и 600 мл горячей воды.','Режим «Гречка» или «Крупа», около 40 минут. Можно уходить.','Подавай со сметаной.'],
+ prep:[[0,6,'Гречка с курицей: нарезать',1],[6,10,'Гречка с курицей: обжарить, засыпать гречку, залить, «Крупа»',1],[16,40,'Гречка с курицей готовится сама',0],[56,3,'Гречка с курицей: разложить',1]]},
+{id:'zapekanka',name:'Картофельная запеканка с фаршем',kind:'batch',cui:'Домашняя',tool:'духовка',active:25,total:65,serves:4,keep:2,prot:33,cost:150,
+ desc:'Пюре, фарш с луком и сырная корочка. Режется на порции и хорошо греется.',
+ ings:[['potato',1000,'г'],['mince',600,'г'],['onion',1,'шт'],['cheese',100,'г'],['smetana',100,'г'],['butter',30,'г'],['eggs',1,'шт']],
+ steps:['Картошку почисть, нарежь и вари 20 минут в подсоленной воде.','Пока варится: фарш с мелким луком обжарь на сухой сковороде 10 минут, посоли.','Слей воду, разомни картошку с маслом, сметаной и яйцом. Духовку на 200°.','В форму: половина пюре, фарш, остальное пюре, сверху тёртый сыр.','20 минут в духовке до корочки.'],
+ prep:[[0,10,'Запеканка: почистить картошку, поставить вариться',1],[10,20,'Картошка варится',0],[12,10,'Запеканка: обжарить фарш с луком',1],[30,10,'Запеканка: пюре, собрать слоями, в духовку',1],[40,20,'Запеканка в духовке',0],[60,3,'Запеканка: остудить, нарезать',1]]},
+{id:'zharkoe',name:'Жаркое с говядиной',kind:'batch',cui:'Домашняя',tool:'мультиварка',active:20,total:115,serves:4,keep:2,prot:36,cost:200,
+ desc:'Говядина и картошка, томлённые в своём соку. Весь ужин в одной чаше.',
+ ings:[['beef',700,'г'],['potato',1000,'г'],['onion',2,'шт'],['carrot',1,'шт'],['tomato_paste',1,'ст.л.'],['garlic',3,'зубч.']],
+ steps:['Говядину нарежь кубиками по 3 см, лук полукольцами, морковь кружками.','«Жарка» 10 минут: мясо, потом лук и морковь.','Сверху картошка крупными кусками, паста, 1,5 ч.л. соли, 500 мл воды.','«Тушение» 1,5 часа. Можно уходить.','В конце чеснок, перемешай.'],
+ prep:[[0,12,'Жаркое: нарезать мясо и овощи',1],[12,10,'Жаркое: обжарить, загрузить картошку, «Тушение» 1,5 ч',1],[22,90,'Жаркое тушится само',0],[112,3,'Жаркое: чеснок, разложить',1]]},
+
+{id:'chkmeruli',name:'Чкмерули',kind:'quick',cui:'Кавказская',tool:'плита',active:15,total:25,serves:2,keep:1,prot:42,cost:170,
+ desc:'Курица в сливочно-чесночном соусе по-грузински. Чеснока много, остроты нет.',
+ ings:[['chicken_thigh',500,'г'],['cream',200,'мл'],['garlic',5,'зубч.'],['butter',15,'г'],['greens',1,'пучок'],['rice',160,'г']],
+ steps:['Поставь рис вариться: 1 часть риса на 2 части воды, 18 минут под крышкой.','Бёдра посоли и выложи на сковороду с маслом. Крышка, средний огонь, по 6 минут с каждой стороны.','Влей сливки, добавь давленый чеснок и подержи 5 минут на слабом огне, пока соус не загустеет.','Посыпь зеленью, подавай с рисом.']},
+{id:'flot',name:'Макароны по-флотски',kind:'quick',cui:'Домашняя',tool:'плита',active:15,total:25,serves:2,keep:1,prot:35,cost:120,
+ desc:'Классика за 25 минут: фарш с луком и макароны в одной сковороде.',
+ ings:[['mince',400,'г'],['pasta',200,'г'],['onion',1,'шт'],['tomato_paste',1,'ст.л.'],['cheese',40,'г']],
+ steps:['Поставь макароны вариться по инструкции.','Лук мелко. Фарш с луком на сухую сковороду, разбивай лопаткой, 10 минут.','Добавь пасту, соль и 3 ст.л. воды из-под макарон.','Вмешай макароны в фарш, сверху тёртый сыр.']},
+{id:'turkey_cream',name:'Индейка в сливочно-сырном соусе',kind:'quick',cui:'Домашняя',tool:'плита',active:15,total:20,serves:2,keep:1,prot:48,cost:210,
+ desc:'Нежная индейка кусочками, сливки и плавленый сыр. С макаронами.',
+ ings:[['turkey',450,'г'],['cream',150,'мл'],['processed_cheese',1,'шт'],['garlic',2,'зубч.'],['pasta',180,'г'],['oil',1,'ст.л.']],
+ steps:['Поставь макароны вариться.','Индейку нарежь кусочками и обжарь на масле 7 минут на сильном огне.','Влей сливки, добавь плавленый сыр и чеснок, мешай 3 минуты, пока сыр не растает.','Соедини с макаронами.']},
+{id:'chirbuli',name:'Чирбули: яйца с помидорами',kind:'quick',cui:'Кавказская',tool:'плита',active:15,total:15,serves:2,keep:1,prot:18,cost:80,
+ desc:'Грузинская яичница: лук и помидоры, сверху яйца. Подходит и для позднего ужина.',
+ ings:[['eggs',5,'шт'],['tomatoes',3,'шт'],['onion',1,'шт'],['garlic',1,'зубч.'],['butter',15,'г'],['greens',1,'пучок']],
+ steps:['Лук мелко, помидоры кубиком.','Лук на масле 4 минуты, потом помидоры и соль, ещё 5 минут до соуса.','Сделай ложкой ямки, вбей яйца, накрой крышкой на 4 минуты.','Сверху чеснок и зелень.']},
+{id:'stroganoff',name:'Бефстроганов из индейки',kind:'quick',cui:'Домашняя',tool:'плита',active:15,total:25,serves:2,keep:1,prot:46,cost:200,
+ desc:'Полоски индейки в сметанном соусе с луком. Индейка готовится быстро и не сохнет.',
+ ings:[['turkey',500,'г'],['onion',1,'шт'],['smetana',150,'г'],['tomato_paste',1,'ч.л.'],['oil',1,'ст.л.'],['buckwheat',160,'г']],
+ steps:['Поставь гречку вариться: 1 к 2, 20 минут.','Индейку нарежь полосками, лук полукольцами.','Лук на масле 4 минуты, потом индейка на сильном огне 6 минут.','Сметана, паста, соль и 100 мл воды. 3 минуты под крышкой.']},
+{id:'lyulya',name:'Люля-кебаб в духовке',kind:'quick',cui:'Кавказская',tool:'духовка',active:15,total:30,serves:2,keep:1,prot:40,cost:180,
+ desc:'Фарш с луком и зирой, рис и чесночный соус из сметаны. Без шампуров и мангала.',
+ ings:[['mince',500,'г'],['onion',1,'шт'],['zira',1,'ч.л.'],['rice',160,'г'],['smetana',100,'г'],['garlic',1,'зубч.'],['cucumbers',2,'шт'],['greens',1,'пучок']],
+ steps:['Духовку на 220°, противень с пергаментом. Поставь рис вариться.','Лук натри и отожми сок. Смешай с фаршем, зирой и 1 ч.л. соли, вымешивай 2 минуты.','Слепи 6 вытянутых колбасок и выложи на противень. 15 минут в духовке.','Соус: сметана с давленым чесноком и солью. Огурцы нарежь.']},
+{id:'cheese_chicken',name:'Курица под сыром без майонеза',kind:'quick',cui:'Домашняя',tool:'духовка',active:10,total:35,serves:2,keep:1,prot:55,cost:170,
+ desc:'Филе со сметаной, помидором и сыром. 10 минут работы, остальное делает духовка.',
+ ings:[['chicken_breast',500,'г'],['tomatoes',2,'шт'],['cheese',80,'г'],['smetana',60,'г'],['garlic',1,'зубч.'],['buckwheat',160,'г']],
+ steps:['Духовку на 200°. Поставь гречку вариться.','Филе разрежь вдоль на 4 пласта, посоли и сложи в форму.','Смажь сметаной с чесноком, сверху кружки помидора и тёртый сыр.','25 минут в духовке.']},
+{id:'bulgur_chicken',name:'Булгур с курицей в одной сковороде',kind:'quick',cui:'Кавказская',tool:'плита',active:12,total:30,serves:2,keep:1,prot:36,cost:120,
+ desc:'Курица, перец, томат и булгур. Одна сковорода и крышка, 15 минут ничего не трогаешь.',
+ ings:[['chicken_thigh',400,'г'],['bulgur',160,'г'],['onion',1,'шт'],['bell_pepper',1,'шт'],['tomato_paste',1,'ст.л.'],['garlic',2,'зубч.'],['oil',1,'ст.л.']],
+ steps:['Курицу нарежь кусочками, лук и перец мелко.','Обжарь курицу на масле 5 минут, добавь лук и перец, ещё 3 минуты.','Паста, булгур, 1 ч.л. соли и 350 мл горячей воды. Перемешай.','Крышка, слабый огонь, 15 минут. Не мешай. Чеснок в конце.']},
+
+{id:'b_cutlets',name:'Котлеты с гречкой и сметаной',kind:'build',cui:'Домашняя',tool:'микроволновка',active:3,total:5,serves:1,keep:0,prot:35,cost:20,
+ desc:'Котлеты и гарнир из заготовки. Три минуты в микроволновке.',
+ ings:[['cutlets',2,'шт'],['cooked_grain',1,'порц.'],['smetana',2,'ст.л.'],['cucumbers',1,'шт']],
+ steps:['Котлеты и гречку в тарелку, накрой и грей 2–3 минуты.','Сверху сметана, рядом огурец.']},
+{id:'b_rice_egg',name:'Жареный рис с яйцом и мясом',kind:'build',cui:'Домашняя',tool:'плита',active:10,total:10,serves:1,keep:0,prot:32,cost:40,
+ desc:'Вчерашний рис становится отдельным блюдом. Одна сковорода, 10 минут.',
+ ings:[['cooked_grain',1,'порц.'],['eggs',2,'шт'],['baked_meat',100,'г'],['frozen_veg',100,'г'],['butter',10,'г'],['garlic',1,'зубч.']],
+ steps:['Растопи масло на сковороде, овощи из морозилки 3 минуты.','Добавь рис и мясо кубиками, 3 минуты на сильном огне.','Сдвинь всё в сторону, вбей яйца, размешай. Через минуту соедини с рисом, добавь чеснок и соль.']},
+{id:'b_cheese_bowl',name:'Сырный боул',kind:'build',cui:'Домашняя',tool:'микроволновка',active:5,total:7,serves:1,keep:0,prot:35,cost:60,
+ desc:'Гарнир, запечённая индейка и горячий сырный соус из кружки.',
+ ings:[['cooked_grain',1,'порц.'],['baked_meat',120,'г'],['processed_cheese',1,'шт'],['cream',40,'мл']],
+ steps:['Плавленый сыр и сливки в кружку, 40 секунд в микроволновке, размешай. Это соус.','Гарнир и мясо разогрей 2 минуты.','Полей сырным соусом.']},
+{id:'b_omelet',name:'Омлет с сыром и мясом',kind:'build',cui:'Домашняя',tool:'плита',active:8,total:8,serves:1,keep:0,prot:33,cost:50,
+ desc:'Быстрый поздний ужин: яйца, индейка из заготовки, сыр.',
+ ings:[['eggs',3,'шт'],['cheese',30,'г'],['baked_meat',60,'г'],['butter',10,'г']],
+ steps:['Взбей яйца вилкой с солью.','Масло на сковороду, мясо кубиками на 1 минуту.','Залей яйцами, накрой крышкой, слабый огонь 4 минуты. Сыр сверху за минуту до конца.']},
+{id:'b_grechka_egg',name:'Гречка с яйцом и луком',kind:'build',cui:'Домашняя',tool:'плита',active:8,total:8,serves:1,keep:0,prot:20,cost:25,
+ desc:'Деревенский вариант из готовой гречки. Сытно и почти бесплатно.',
+ ings:[['cooked_grain',1,'порц.'],['eggs',2,'шт'],['onion',1,'шт'],['butter',10,'г']],
+ steps:['Лук мелко, на масле 4 минуты.','Добавь гречку и прогрей 2 минуты.','Вбей яйца, размешай, ещё 2 минуты.']},
+
+{id:'s_tvorog',name:'Творог с чесноком и зеленью',kind:'snack',cui:'Кавказская',tool:'без плиты',active:3,total:3,serves:1,keep:2,prot:30,cost:90,
+ desc:'Солёный творог как закуска. Много белка, три минуты.',
+ ings:[['tvorog',200,'г'],['smetana',2,'ст.л.'],['garlic',1,'зубч.'],['greens',1,'пучок']],
+ steps:['Смешай творог, сметану, давленый чеснок, рубленую зелень и щепотку соли.']},
+{id:'s_syrniki',name:'Сырники в духовке',kind:'snack',cui:'Домашняя',tool:'духовка',active:10,total:30,serves:2,keep:2,prot:30,cost:90,
+ desc:'Без сахара и без жарки. Со сметаной.',
+ ings:[['tvorog',400,'г'],['eggs',1,'шт'],['flour',3,'ст.л.'],['smetana',100,'г']],
+ steps:['Духовку на 200°, противень с пергаментом.','Разомни творог с яйцом, мукой и щепоткой соли.','Мокрыми руками сформуй 8 сырников и выложи на пергамент.','20 минут, переворачивать не нужно. Подавай со сметаной.']},
+{id:'s_plate',name:'Тарелка-перекус',kind:'snack',cui:'Домашняя',tool:'без плиты',active:3,total:3,serves:1,keep:0,prot:30,cost:60,
+ desc:'Варёные яйца, индейка ломтиками, сыр и огурец. Собрал и съел.',
+ ings:[['boiled_eggs',2,'шт'],['baked_meat',80,'г'],['cheese',30,'г'],['cucumbers',1,'шт']],
+ steps:['Яйца, индейку ломтиками, сыр и огурец выложи на тарелку.']},
+{id:'s_eggs',name:'Варёные яйца впрок',kind:'snack',cui:'Домашняя',tool:'плита',active:3,total:15,serves:10,keep:5,prot:6,cost:12,yields:'boiled_eggs',fixed:1,
+ desc:'Десяток яиц на перекусы и тарелки. В скорлупе хранятся 5 дней.',
+ ings:[['eggs',10,'шт']],
+ steps:['Яйца в кастрюлю, залей холодной водой.','После закипания 9 минут на среднем огне.','Переложи в холодную воду на 5 минут, потом в холодильник прямо в скорлупе.'],
+ prep:[[0,2,'Яйца: залить водой, поставить на огонь',1],[2,12,'Яйца варятся',0],[14,3,'Яйца: в холодную воду, потом в холодильник',1]]},
+{id:'s_buzh',name:'Запечённая индейка вместо колбасы',kind:'snack',cui:'Домашняя',tool:'духовка',active:10,total:60,serves:8,keep:4,prot:22,cost:70,yields:'baked_meat',fixed:1,
+ desc:'Кусок индейки в фольге. Режешь на перекусы, в омлет, боулы и жареный рис.',
+ ings:[['turkey',1000,'г'],['garlic',4,'зубч.'],['paprika',1,'ч.л.'],['oil',1,'ст.л.']],
+ steps:['Духовку на 180°.','Натри индейку солью (1,5 ч.л.), давленым чесноком, паприкой и маслом.','Заверни в фольгу и запекай 50 минут.','Остуди прямо в фольге и убери в холодильник. Хранится 4 дня.'],
+ prep:[[0,8,'Индейка: натереть специями, в фольгу, в духовку 180°',1],[8,50,'Индейка запекается',0],[58,2,'Индейка: остывает в фольге',1]]},
+{id:'s_muffins',name:'Яичные маффины с сыром',kind:'snack',cui:'Домашняя',tool:'духовка',active:10,total:32,serves:6,keep:3,prot:15,cost:45,yields:'muffins',fixed:1,
+ desc:'12 штук на три дня. Едят холодными или 30 секунд в микроволновке.',
+ ings:[['eggs',8,'шт'],['cheese',100,'г'],['bell_pepper',1,'шт'],['greens',1,'пучок']],
+ steps:['Духовку на 180°, смажь формочки для кексов.','Взбей яйца с солью, добавь тёртый сыр, мелко нарезанный перец и зелень.','Разлей по формочкам на 2/3 и запекай 20 минут.','Остуди и убери в контейнер.'],
+ prep:[[0,10,'Маффины: взбить яйца с сыром, разлить, в духовку',1],[10,20,'Маффины запекаются',0],[30,2,'Маффины: остудить',1]]},
+{id:'p_grain',name:'Гарнир впрок',kind:'base',cui:'Домашняя',tool:'плита',active:3,total:25,serves:4,keep:3,prot:6,cost:15,yields:'cooked_grain',fixed:1,
+ desc:'Кастрюля гречки или риса на 3 дня. Основа для сборок за 5–10 минут.',
+ ings:[['buckwheat',300,'г']],
+ steps:['Промой 300 г крупы, залей водой 1 к 2, посоли.','Под крышкой на слабом огне: гречка 20 минут, рис 18.','Остуди и убери в контейнер. Хранится 3 дня.'],
+ prep:[[0,3,'Гарнир: промыть крупу, залить водой, на огонь',1],[3,20,'Гарнир варится',0],[23,2,'Гарнир: остудить, в контейнер',1]]}
+];
+const D=Object.fromEntries(DISHES.map(d=>[d.id,d]));
+const BANNABLE=['beef','mince','chicken_legs','turkey','tvorog','cheese','processed_cheese','smetana','cream','onion','carrot','garlic','cabbage','tomatoes','canned_tomatoes','cucumbers','bell_pepper','greens','frozen_veg','potato','rice','buckwheat','bulgur','pasta','oats','zira','khmeli'];
+const FRIDGE_PRESETS=['chicken_thigh','chicken_legs','chicken_breast','turkey','turkey_mince','beef','mince','eggs','tvorog','cheese','processed_cheese','smetana','cream','butter','potato','onion','carrot','garlic','cabbage','tomatoes','cucumbers','bell_pepper','greens','frozen_veg','cooked_grain','cutlets','baked_meat','boiled_eggs','muffins'];
+
+/* ---------- даты ---------- */
+const DAY=864e5;
+function today(){const d=new Date();d.setHours(0,0,0,0);return d}
+function iso(d){const z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())}
+function parse(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function diffDays(a,b){return Math.round((parse(iso(a))-parse(iso(b)))/DAY)}
+const fWd=new Intl.DateTimeFormat('ru-RU',{weekday:'short'});
+const fDm=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short'});
+const fFull=new Intl.DateTimeFormat('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+
+/* ---------- состояние ---------- */
+const LS='sytno-state-v1';
+function blank(){return {v:1,eaters:1,r:{},c:{},lc:{},ban:[],fridge:[],week:null,updated:0}}
+function normalize(s){const b=blank();return Object.assign(b,s||{})}
+let state=blank();
+try{const raw=localStorage.getItem(LS);if(raw)state=normalize(JSON.parse(raw))}catch(e){}
+let ui={tab:'now',mode:'20',fromFridge:false,nowId:null,filter:'all',place:'fridge',resetArm:false};
+try{const u=JSON.parse(localStorage.getItem('sytno-ui')||'{}');if(u.tab)ui.tab=u.tab;if(u.mode)ui.mode=u.mode}catch(e){}
+function saveUi(){try{localStorage.setItem('sytno-ui',JSON.stringify({tab:ui.tab,mode:ui.mode}))}catch(e){}}
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
+
+const Store={schedule(){}};
+function setSync(t){document.getElementById('sync').textContent=t}
+function save(){state.updated=Date.now();saveLocal();Store.schedule()}
+
+/* ---------- утилиты ---------- */
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function num(v){return String(v).replace('.',',')}
+function fmtQty(q,u){
+  if(u==='г'||u==='мл'){let v=q<100?Math.round(q/10)*10:Math.round(q/50)*50;if(!v)v=10;
+    if(v>=1000)return num(Math.round(v/100)/10)+(u==='г'?' кг':' л');return v+' '+u}
+  const n=Math.max(1,Math.ceil(q-1e-9));
+  const F={'пучок':['пучок','пучка','пучков'],'банка':['банка','банки','банок'],'головка':['головка','головки','головок']}[u];
+  if(F){const m10=n%10,m100=n%100;u=m10===1&&m100!==11?F[0]:m10>=2&&m10<=4&&(m100<12||m100>14)?F[1]:F[2]}
+  return n+' '+u;
+}
+function shopQty(q,u){return u==='ст.л.'||u==='ч.л.'?'1 уп. · нужно '+fmtQty(q,u):fmtQty(q,u)}
+function ingName(k){return ING[k]?ING[k][0]:k}
+function isPantry(k){return ING[k]&&ING[k][3]===1}
+function isReady(k){return ING[k]&&ING[k][1]==='ready'}
+function mainProtein(d){const m=d.ings.find(i=>ING[i[0]]&&ING[i[0]][1]==='meat');if(!m)return 'eggs';const k=m[0];return k.startsWith('chicken')?'chicken':k.startsWith('turkey')?'turkey':k==='mince'?'beef':k}
+function defaultPortions(d){if(d.fixed)return d.serves;if(d.kind==='batch')return state.eaters*2;if(d.kind==='snack')return d.serves;return state.eaters}
+function isBanned(d){return d.ings.some(i=>state.ban.includes(i[0]))}
+function isNew(d){return state.r[d.id]===undefined&&!state.c[d.id]}
+function weight(d){
+  if(isBanned(d)||state.r[d.id]===-1)return 0;
+  let w=state.r[d.id]===1?4:isNew(d)?1.6:1;
+  const lc=state.lc[d.id];if(lc&&diffDays(today(),parse(lc))<6)w*=.3;
+  return w;
+}
+function pick(list,exclude){
+  const c=list.filter(d=>!(exclude||[]).includes(d.id)).map(d=>[d,weight(d)]).filter(x=>x[1]>0);
+  if(!c.length)return null;let t=c.reduce((s,x)=>s+x[1],0)*Math.random();
+  for(const [d,w] of c){if((t-=w)<=0)return d}return c[c.length-1][0];
+}
+function freshFridge(){const t=today();return state.fridge.filter(i=>i.z||diffDays(parse(i.e),t)>=0)}
+function hasKey(k){return freshFridge().some(i=>i.k===k)}
+function coverage(d){const need=d.ings.filter(i=>!isPantry(i[0]));const have=need.filter(i=>hasKey(i[0]));return {need,have,miss:need.filter(i=>!hasKey(i[0])),ratio:need.length?have.length/need.length:1}}
+
+/* ---------- неделя ---------- */
+function genWeek(){
+  const batch=DISHES.filter(d=>d.kind==='batch'),quick=DISHES.filter(d=>d.kind==='quick');
+  const A=pick(batch)||batch[0];
+  const B=pick(batch.filter(d=>mainProtein(d)!==mainProtein(A)),[A.id])||pick(batch,[A.id])||batch[1];
+  let Q1=pick(quick.filter(isNew))||pick(quick);
+  const Q2=pick(quick.filter(d=>mainProtein(d)!==mainProtein(Q1)),[Q1.id])||pick(quick,[Q1.id]);
+  const Q3=pick(quick,[Q1.id,Q2&&Q2.id])||Q1;
+  const extras=['p_grain','s_eggs'];
+  if(A.tool!=='духовка')extras.push(Math.random()<.65?'s_buzh':'s_muffins');
+  const w={start:iso(today()),slots:[
+    {role:'prep',id:A.id},{role:'left',id:A.id},{role:'batch',id:B.id},{role:'left',id:B.id},
+    {role:'quick',id:Q1.id},{role:'quick',id:Q2.id},{role:'spare',id:Q3.id}],extras,late:[],bought:{}};
+  w.late=genLate(w);
+  return w;
+}
+function readyOn(w,day){
+  const out=[];
+  w.extras.forEach(id=>{const d=D[id];if(d.yields&&day<=d.keep)out.push(d.yields)});
+  return out;
+}
+function genLate(w){
+  const pool=['s_tvorog','s_syrniki','s_plate','b_rice_egg','b_cheese_bowl','b_omelet','b_grechka_egg','chirbuli'];
+  const res=[];let prev=null;
+  for(let day=0;day<7;day++){
+    const ready=readyOn(w,day);
+    let cands=pool.map(id=>D[id]).filter(d=>d.ings.every(i=>!isReady(i[0])||ready.includes(i[0])));
+    if(w.extras.includes('s_muffins')&&day<=2)cands.push(D.s_muffins);
+    const p=pick(cands,prev?[prev]:[])||pick(cands)||D.s_tvorog;res.push(p.id);prev=p.id;
+  }
+  return res;
+}
+function replaceSlot(i){
+  const w=state.week;const s=w.slots[i];
+  if(s.role==='prep'||s.role==='left'&&i===1||s.role==='batch'||s.role==='left'&&i===3){
+    const a=(i<=1)?0:2;const other=(a===0)?w.slots[2].id:w.slots[0].id;
+    const nd=pick(DISHES.filter(d=>d.kind==='batch'),[w.slots[a].id,other]);if(!nd)return toast('Больше нечего предложить: сними пару дизлайков');
+    w.slots[a].id=nd.id;w.slots[a+1].id=nd.id;
+    if(a===0){w.extras=w.extras.filter(x=>x!=='s_buzh'&&x!=='s_muffins');if(nd.tool!=='духовка')w.extras.push('s_buzh');w.late=genLate(w)}
+  }else{
+    const nd=pick(DISHES.filter(d=>d.kind==='quick'),w.slots.map(x=>x.id));if(!nd)return toast('Больше нечего предложить');
+    s.id=nd.id;
+  }
+  save();render();
+}
+function weekItems(w){
+  const it=[];const e=state.eaters;
+  w.slots.forEach((s,day)=>{if(s.role==='left')return;const d=D[s.id];it.push({d,portions:d.kind==='batch'?e*2:e,day})});
+  w.extras.forEach(id=>it.push({d:D[id],portions:D[id].serves,day:0}));
+  w.late.forEach((id,day)=>{const d=D[id];if(id==='s_muffins')return;it.push({d,portions:1,day,late:1})});
+  return it;
+}
+function shopping(w){
+  const hyper={},local={},pantry=new Set();let cost=0;
+  weekItems(w).forEach(({d,portions,day})=>{
+    const f=portions/d.serves;cost+=d.cost*portions;
+    d.ings.forEach(([k,q,u])=>{
+      if(isReady(k))return;if(isPantry(k)){pantry.add(k);return}
+      const shelf=ING[k][2];const key=k+'|'+u;
+      if(day>shelf){local[day]=local[day]||{};const L=local[day];L[key]=L[key]||{k,u,q:0};L[key].q+=q*f}
+      else{hyper[key]=hyper[key]||{k,u,q:0};hyper[key].q+=q*f}
+    });
+  });
+  return {hyper,local,pantry:[...pantry],cost:Math.round(cost/50)*50};
+}
+function prepPlan(ids){
+  const placed=[];
+  ids.forEach((id,n)=>{
+    const tasks=D[id].prep||[[0,D[id].active,D[id].name,1]];let s=0;
+    if(n>0){for(s=0;s<240;s++){if(tasks.every(t=>!t[3]||placed.every(p=>!p[3]||s+t[0]+t[1]<=p[0]||s+t[0]>=p[0]+p[1])))break}}
+    tasks.forEach(t=>placed.push([s+t[0],t[1],t[2],t[3]]));
+  });
+  placed.sort((a,b)=>a[0]-b[0]||b[3]-a[3]);
+  const total=Math.max(...placed.map(p=>p[0]+p[1]));const active=placed.filter(p=>p[3]).reduce((s,p)=>s+p[1],0);
+  return {placed,total,active};
+}
+function hm(m){return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')}
+
+/* ---------- готовка ---------- */
+function markCooked(d){
+  state.c[d.id]=(state.c[d.id]||0)+1;state.lc[d.id]=iso(today());
+  const t=today();let msg='Записал. Блюдо реже будет повторяться ближайшие дни';
+  if(d.yields){const k=d.yields;state.fridge.push({id:rid(),k,n:ingName(k),a:iso(t),e:iso(addDays(t,ING[k][2])),z:false});msg='Добавил в холодильник: '+ingName(k).toLowerCase()}
+  else if(d.kind==='batch'){const keep=Math.min(d.keep,2);state.fridge.push({id:rid(),k:'dish:'+d.id,n:d.name,a:iso(t),e:iso(addDays(t,keep-1)),z:false});msg='Остатки в холодильнике, доесть до '+fDm.format(addDays(t,keep-1))}
+  save();render();toast(msg);
+}
+function rid(){return Math.random().toString(36).slice(2,9)}
+
+/* ---------- отрисовка ---------- */
+const view=document.getElementById('view');
+function render(){
+  document.getElementById('sync').textContent=fFull.format(today());
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===ui.tab?'true':'false'));
+  if(!state.week){state.week=genWeek();save()}
+  view.innerHTML=({now:rNow,week:rWeek,shop:rShop,fridge:rFridge,dishes:rDishes}[ui.tab]||rNow)();
+}
+function metaRow(d,portions){
+  return `<div class="meta"><span>${d.active} мин работы</span>${d.total>d.active?`<span>${d.total} мин всего</span>`:''}<span class="prot">${d.prot} г белка</span><span>≈ ${d.cost} ₽ за порцию</span><span>${d.tool}</span></div>`;
+}
+function ingList(d,portions){
+  const f=portions/d.serves;
+  return `<ul class="ings">${d.ings.map(([k,q,u])=>`<li class="${!isPantry(k)&&hasKey(k)?'have':''}"><span>${ingName(k)}</span><span>${isPantry(k)&&u==='ч.л.'?q+' '+u:fmtQty(q*f,u)}</span></li>`).join('')}</ul>`;
+}
+function stepsList(d){return `<ol class="steps">${d.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`}
+function rateBtns(d){
+  const r=state.r[d.id];
+  return `<button class="btn sm like" data-act="rate" data-id="${d.id}" data-v="1" aria-pressed="${r===1}">Нравится</button><button class="btn sm dis" data-act="rate" data-id="${d.id}" data-v="-1" aria-pressed="${r===-1}">Не моё</button>`;
+}
+function portionNote(d,p){return d.kind==='batch'?`на ${p} порц.: ${state.eaters===1?'ужин сегодня и завтра':'2 дня на '+state.eaters}`:`на ${p} порц.`}
+
+function nowPool(){
+  let pool;
+  if(ui.mode==='10')pool=DISHES.filter(d=>(d.kind==='build'||d.kind==='snack'&&!d.fixed)&&d.total<=10);
+  else if(ui.mode==='20')pool=DISHES.filter(d=>d.kind==='quick'&&d.total<=30);
+  else pool=DISHES.filter(d=>(d.kind==='batch'||d.kind==='quick'||d.id==='s_syrniki')&&d.total-d.active>=15);
+  return pool;
+}
+function pickNow(){
+  const pool=nowPool();
+  const scored=pool.map(d=>{let w=weight(d);const cv=coverage(d);
+    if(d.kind==='build'||d.id==='s_plate'){const rd=d.ings.filter(i=>isReady(i[0]));w*=rd.every(i=>hasKey(i[0]))?5:.25}
+    if(ui.fromFridge)w*=.05+cv.ratio*cv.ratio*4;return [d,w]}).filter(x=>x[1]>0&&x[0].id!==ui.nowId);
+  if(!scored.length)return pool.find(d=>weight(d)>0)||null;
+  let t=scored.reduce((s,x)=>s+x[1],0)*Math.random();for(const [d,w] of scored){if((t-=w)<=0)return d}return scored[0][0];
+}
+function rNow(){
+  const t=today();
+  const left=freshFridge().filter(i=>i.k&&i.k.startsWith('dish:'));
+  let h='<div class="stack">';
+  
+  if(left.length)h+=`<div class="note"><b>Сначала доешь.</b> ${left.map(i=>{const dl=diffDays(parse(i.e),t);return `${esc(i.n)}: ${dl<=0?'последний день':'до '+fDm.format(parse(i.e))} <button class="btn sm ghost" data-act="fdel" data-id="${i.id}">Доел</button>`}).join('<br>')}<br><span class="small muted">Разогрей 3–4 минуты в микроволновке под крышкой.</span></div>`;
+  const w=state.week;const idx=diffDays(t,parse(w.start));
+  if(idx>=0&&idx<7){const s=w.slots[idx];const d=D[s.id];
+    h+=`<div class="plan"><div><div class="small muted">По плану сегодня</div><b>${s.role==='left'?'Доедаем: ':''}${d.name}</b></div><button class="btn sm" data-act="open" data-id="${d.id}">Открыть</button></div>`}
+  h+=`<div><div class="label" style="margin-bottom:8px">Сколько есть времени</div><div class="seg">
+    <button data-act="mode" data-v="10" aria-pressed="${ui.mode==='10'}">10 минут</button>
+    <button data-act="mode" data-v="20" aria-pressed="${ui.mode==='20'}">15–20 минут</button>
+    <button data-act="mode" data-v="away" aria-pressed="${ui.mode==='away'}">Поставить и уйти</button>
+    <button data-act="ff" aria-pressed="${ui.fromFridge}">Из того, что дома</button></div></div>`;
+  let d=ui.nowId&&D[ui.nowId]&&nowPool().includes(D[ui.nowId])&&weight(D[ui.nowId])>0?D[ui.nowId]:null;
+  if(!d){d=pickNow();ui.nowId=d&&d.id}
+  if(!d){h+='<div class="card empty"><p>Под эти условия ничего не осталось: всё в дизлайках или в «Не ем».</p><button class="btn" data-act="tab" data-tab="dishes">Открыть блюда</button></div></div>';return h}
+  const p=defaultPortions(d);const cv=coverage(d);
+  const needReady=d.ings.filter(i=>isReady(i[0])&&!hasKey(i[0]));
+  h+=`<article class="card hero"><div class="kicker">${KIND[d.kind]} · ${d.cui}${isNew(d)?' · новое':''}</div><h2>${d.name}</h2><p class="desc">${d.desc}</p>${metaRow(d,p)}`;
+  if(needReady.length)h+=`<p class="small" style="margin-top:10px;color:var(--warn)">Нужна заготовка: ${needReady.map(i=>ingName(i[0]).toLowerCase()).join(', ')}. Её делают в день заготовки.</p>`;
+  else if(ui.fromFridge&&cv.miss.length)h+=`<p class="small" style="margin-top:10px;color:var(--warn)">Докупить: ${cv.miss.map(i=>ingName(i[0]).toLowerCase()).join(', ')}</p>`;
+  h+=`<details open><summary>Продукты ${portionNote(d,p)}</summary>${ingList(d,p)}</details>${stepsList(d)}
+    <div class="actions"><button class="btn" data-act="next">Другое</button>${rateBtns(d)}<button class="btn primary" data-act="cook" data-id="${d.id}">Приготовил</button></div></article>`;
+  h+=`<p class="small muted">«Не моё» убирает блюдо из подбора. «Нравится» — будет попадаться чаще. «Приготовил» записывает остатки в холодильник.</p></div>`;
+  return h;
+}
+
+const ROLE={prep:['Заготовка','b-acc'],left:['Доедаем','b-muted'],batch:['Впрок в мультиварке/духовке','b-acc'],quick:['Быстро','b-muted'],spare:['Запасной день','b-muted']};
+function rWeek(){
+  const w=state.week;const t=today();const start=parse(w.start);const idx=diffDays(t,start);
+  const sh=shopping(w);const pp=prepPlan([w.slots[0].id,...w.extras]);
+  let h='<div class="stack">';
+  h+=`<div class="dline"><div><h2>Меню на неделю</h2><p class="small muted">с ${fDm.format(start)} · ≈ ${sh.cost.toLocaleString('ru-RU')} ₽ на продукты</p></div><button class="btn sm" data-act="regen">Пересобрать</button></div>`;
+  if(idx>6)h+=`<div class="note"><b>Неделя закончилась.</b> Нажми «Пересобрать», чтобы начать новую с сегодняшнего дня.</div>`;
+  h+=`<div class="dline"><span class="small muted">Сколько человек ест</span><div class="seg">${[1,2,3].map(n=>`<button data-act="eaters" data-v="${n}" aria-pressed="${state.eaters===n}">${n}</button>`).join('')}</div></div>`;
+  h+=`<div class="card"><div class="label">День заготовки · ${fWd.format(start)}, ${fDm.format(start)}</div>
+    <h3 style="margin-top:6px">≈ ${hm(pp.total)} на кухне, из них руками ≈ ${pp.active} мин</h3>
+    <p class="small muted" style="margin-top:4px">${[w.slots[0].id,...w.extras].map(id=>D[id].name).join(' · ')}</p>
+    <details><summary>План по минутам</summary><div class="tl">${pp.placed.map(p=>`<span class="t">${hm(p[0])}</span><span class="${p[3]?'':'pass'}">${p[2]}${p[3]?'':' — само'}</span>`).join('')}</div></details></div>`;
+  h+='<div class="card" style="padding-block:4px">';
+  w.slots.forEach((s,i)=>{
+    const day=addDays(start,i);const d=D[s.id];const ld=D[w.late[i]];
+    const isNewD=isNew(d)&&s.role!=='left';
+    const loc=sh.local[i]?Object.values(sh.local[i]).map(x=>`${ingName(x.k)} — ${fmtQty(x.q,x.u)}`).join(', '):'';
+    const portions=s.role==='left'?0:(d.kind==='batch'?state.eaters*2:state.eaters);
+    h+=`<div class="day${i===idx?' today':''}"><div class="dt"><b>${day.getDate()}</b><span>${fWd.format(day)}</span></div><div class="body">
+      <div class="dline"><span class="badge ${ROLE[s.role][1]}">${i===idx?'Сегодня · ':''}${ROLE[s.role][0]}</span>${isNewD?'<span class="badge b-new">новое</span>':''}</div>
+      <div class="dline"><button class="linkish" data-act="open" data-id="${d.id}">${d.name}</button>${s.role!=='left'?`<button class="btn sm ghost" data-act="swap" data-i="${i}" aria-label="Заменить блюдо">Заменить</button>`:''}</div>
+      <div class="sub">${s.role==='left'?'Разогреть 3–4 минуты':`${d.active} мин работы${d.total>d.active?', '+d.total+' всего':''}`} · <b>${d.prot} г белка</b></div>
+      ${loc?`<div class="sub" style="color:var(--warn)">По дороге купи: ${loc}</div>`:''}
+      <div class="sub">Поздний ужин или перекус: <button class="linkish" style="font-weight:500;font-size:13px;color:var(--muted)" data-act="open" data-id="${ld.id}">${ld.name}${ld.id==='s_muffins'?' из заготовки':''}</button></div>
+    </div></div>`;
+  });
+  h+='</div><p class="small muted">Готовое ешь максимум 2 дня подряд: заготовка закрывает 2 ужина, в середине недели мультиварка делает ещё одну на 2 дня, остальные дни — быстрые блюда на 15–25 минут. Мясо на конец недели лучше купить в магазине у дома: так оно не залежится.</p></div>';
+  return h;
+}
+function rShop(){
+  const w=state.week;const sh=shopping(w);const start=parse(w.start);
+  const group=(obj,loc)=>{const by={};Object.entries(obj).forEach(([key,x])=>{const s=ING[x.k][1];(by[s]=by[s]||[]).push([key,x])});
+    return Object.keys(SEC).filter(s=>by[s]).map(s=>`<div class="sec"><div class="label">${SEC[s]}</div><ul class="shop">${by[s].map(([key,x])=>{const id=loc+'|'+key;const done=!!w.bought[id];
+      return `<li class="${done?'done':''}"><label><input type="checkbox" data-act="buy" data-id="${esc(id)}" ${done?'checked':''}><span class="nm">${ingName(x.k)}${hasKey(x.k)?' <span class="badge b-new">есть дома?</span>':''}</span></label><span class="q">${shopQty(x.q,x.u)}</span></li>`}).join('')}</ul></div>`).join('')};
+  const all=Object.keys(sh.hyper).length;const done=Object.keys(sh.hyper).filter(k=>w.bought['h|'+k]).length;
+  let h=`<div class="stack"><div class="dline"><div><h2>Список покупок</h2><p class="small muted">на неделю с ${fDm.format(start)} · ≈ ${sh.cost.toLocaleString('ru-RU')} ₽ · на ${state.eaters} ${state.eaters===1?'человека':'человек'}</p></div><button class="btn sm" data-act="copy">Скопировать</button></div>`;
+  h+=`<div class="card"><div class="dline"><h3>Гипермаркет, в день заготовки</h3><span class="small muted">${done} из ${all}</span></div><div class="bar"><i style="width:${all?done/all*100:0}%"></i></div><div style="margin-top:12px">${group(sh.hyper,'h')}</div></div>`;
+  const days=Object.keys(sh.local).map(Number).sort((a,b)=>a-b);
+  if(days.length){h+=`<div class="card"><h3>Магазин у дома, ближе к делу</h3><p class="small muted" style="margin-top:4px">Это скоропортящееся. Купи в день готовки или заморозь сразу после гипермаркета и достань в холодильник накануне.</p>`;
+    days.forEach(dd=>{h+=`<div class="sec" style="margin-top:14px"><div class="label">${fWd.format(addDays(start,dd))}, ${fDm.format(addDays(start,dd))}</div>${group(sh.local[dd],'l'+dd).replace(/<div class="sec">/g,'<div>')}</div>`});h+='</div>'}
+  if(sh.pantry.length)h+=`<div class="card"><h3>Проверь в кладовке</h3><p class="small muted" style="margin-top:4px">Обычно уже есть дома.</p><div class="chips" style="margin-top:10px">${sh.pantry.map(k=>`<span class="badge">${ingName(k)}</span>`).join('')}</div></div>`;
+  h+='<div id="copybox"></div></div>';
+  return h;
+}
+function shopText(){
+  const w=state.week;const sh=shopping(w);const start=parse(w.start);
+  let s='Гипермаркет:\n'+Object.values(sh.hyper).map(x=>'— '+ingName(x.k)+' — '+shopQty(x.q,x.u)).join('\n');
+  Object.keys(sh.local).map(Number).sort((a,b)=>a-b).forEach(dd=>{s+='\n\nУ дома, '+fWd.format(addDays(start,dd))+' '+fDm.format(addDays(start,dd))+':\n'+Object.values(sh.local[dd]).map(x=>'— '+ingName(x.k)+' — '+shopQty(x.q,x.u)).join('\n')});
+  if(sh.pantry.length)s+='\n\nПроверить дома: '+sh.pantry.map(ingName).join(', ');
+  return s;
+}
+function rFridge(){
+  const t=today();
+  const items=[...state.fridge].sort((a,b)=>(a.z-b.z)||a.e.localeCompare(b.e));
+  let h='<div class="stack"><h2>Холодильник</h2>';
+  if(!items.length)h+='<div class="card empty"><p class="muted">Пока пусто. Отметь ниже, что купил или приготовил, и здесь появятся сроки и идеи, что из этого сделать.</p></div>';
+  else{h+='<div class="card" style="padding-block:4px"><div class="list">'+items.map(i=>{
+    const dl=diffDays(parse(i.e),t);let b;
+    if(i.z)b='<span class="badge">морозилка</span>';else if(dl<0)b='<span class="badge b-danger">просрочено</span>';else if(dl===0)b='<span class="badge b-warn">сегодня</span>';else if(dl===1)b='<span class="badge b-warn">до завтра</span>';else b=`<span class="badge b-new">ещё ${dl} дн.</span>`;
+    return `<div class="item" style="flex-wrap:wrap;gap:8px 10px"><div class="grow" style="flex-basis:100%"><div style="font-weight:500">${esc(i.n)}</div><div class="small muted">с ${fDm.format(parse(i.a))}</div></div>${b}<span style="flex:1"></span><button class="btn sm ghost" data-act="${i.z?'thaw':'freeze'}" data-id="${i.id}">${i.z?'Разморозить':'В морозилку'}</button><button class="btn sm" data-act="fdel" data-id="${i.id}" aria-label="Убрать">Убрать</button></div>`}).join('')+'</div></div>';
+    const ranked=DISHES.filter(d=>d.kind!=='base'&&weight(d)>0).map(d=>[d,coverage(d)]).filter(x=>x[1].have.length>0).sort((a,b)=>b[1].ratio-a[1].ratio||b[1].have.length-a[1].have.length).slice(0,6);
+    if(ranked.length)h+=`<div class="card"><h3>Что приготовить из этого</h3><div class="list" style="margin-top:6px">${ranked.map(([d,cv])=>`<div class="item"><div class="grow"><button class="linkish" data-act="open" data-id="${d.id}">${d.name}</button><div class="small muted">${cv.miss.length?'докупить: '+cv.miss.map(i=>ingName(i[0]).toLowerCase()).join(', '):'всё есть'}</div></div><span class="badge ${cv.ratio===1?'b-new':''}">${cv.have.length} из ${cv.need.length}</span></div>`).join('')}</div></div>`;
+  }
+  h+=`<div class="card"><div class="label">Добавить</div><div class="seg" style="margin-top:10px"><button data-act="place" data-v="fridge" aria-pressed="${ui.place==='fridge'}">В холодильник</button><button data-act="place" data-v="freezer" aria-pressed="${ui.place==='freezer'}">В морозилку</button></div>
+    <div class="chips" style="margin-top:12px">${FRIDGE_PRESETS.map(k=>`<button class="chip" data-act="fadd" data-k="${k}">${ingName(k)}</button>`).join('')}</div>
+    <form class="addrow" id="faddForm" style="margin-top:12px"><input id="fname" placeholder="Что-то своё, например «гуляш от мамы»" autocomplete="off"><button class="btn" type="submit">Добавить</button></form>
+    <p class="small muted" style="margin-top:8px">Срок ставится сам: сырой фарш 1 день, курица 2, готовое 2, морозилка 3 месяца.</p></div>`;
+  h+='</div>';return h;
+}
+function rDishes(){
+  const rateable=DISHES.filter(d=>d.kind!=='base');
+  const unrated=rateable.filter(d=>state.r[d.id]===undefined);
+  const cur=unrated[0];
+  let h='<div class="stack"><h2>Блюда</h2>';
+  h+=`<div class="card"><div class="label">Знакомство</div>`;
+  if(cur){h+=`<p class="small muted" style="margin-top:4px">Не помнишь, что не любишь? Пройдись по списку: так генератор быстрее поймёт вкус.</p>
+    <div style="margin-top:14px"><div class="kicker">${KIND[cur.kind]}</div><h3 style="font-size:18px">${cur.name}</h3><p class="desc small">${cur.desc}</p></div>
+    <div class="actions"><button class="btn" data-act="deck" data-id="${cur.id}" data-v="-1">Не моё</button><button class="btn" data-act="deck" data-id="${cur.id}" data-v="0">Не знаю</button><button class="btn primary" data-act="deck" data-id="${cur.id}" data-v="1">Хочу</button></div>`}
+  else h+=`<p style="margin-top:6px">Все блюда оценены. Оценки можно поменять в списке ниже.</p>`;
+  h+=`<div class="bar"><i style="width:${(rateable.length-unrated.length)/rateable.length*100}%"></i></div><p class="small muted" style="margin-top:6px">оценено ${rateable.length-unrated.length} из ${rateable.length}</p></div>`;
+  h+=`<div class="card"><div class="label">Не ем</div><p class="small muted" style="margin-top:4px">Блюда с отмеченными продуктами пропадут из подбора.</p><div class="chips" style="margin-top:10px">${BANNABLE.map(k=>`<button class="chip ban" data-act="ban" data-k="${k}" aria-pressed="${state.ban.includes(k)}">${ingName(k)}</button>`).join('')}</div></div>`;
+  const F={all:'Все',batch:'Заготовка',quick:'Быстро',build:'Из заготовки',snack:'Перекусы'};
+  h+=`<div class="seg">${Object.entries(F).map(([k,v])=>`<button data-act="filter" data-v="${k}" aria-pressed="${ui.filter===k}">${v}</button>`).join('')}</div>`;
+  const list=rateable.filter(d=>ui.filter==='all'||d.kind===ui.filter);
+  h+=`<div class="card" style="padding-block:4px"><div class="list">${list.map(d=>`<div class="item" style="flex-wrap:wrap"><div class="grow" style="min-width:180px"><button class="linkish" data-act="open" data-id="${d.id}">${d.name}</button><div class="small muted">${KIND[d.kind]} · ${d.total} мин · ${d.prot} г белка${state.c[d.id]?' · готовил '+state.c[d.id]+' р.':''}${isBanned(d)?' · <span style="color:var(--danger)">есть «не ем»</span>':''}</div></div><div style="display:flex;gap:6px">${rateBtns(d)}</div></div>`).join('')}</div></div>`;
+  h+=`<div class="card tip"><h3>Что докупить на 10 тысяч</h3><ol>
+    <li><b>Аэрогриль на 5–6 литров</b>, примерно 6–9 тыс. ₽. Курица, котлеты и картошка дольками за 20–25 минут без масла: положил, закрыл, ушёл. Заменяет духовку для 1–2 порций.</li>
+    <li><b>Стеклянные контейнеры с крышками</b>, 6–8 штук, около 1,5 тыс. ₽. Заготовку видно, греется прямо в них.</li>
+    <li><b>Термометр-щуп</b>, около 700 ₽. Курица готова при 74°, фарш при 71°. Не надо резать и гадать.</li></ol></div>`;
+  h+=`<div class="card"><div class="dline" style="align-items:center"><span class="small muted">Сбросить оценки, холодильник и меню</span><button class="btn sm" data-act="reset" style="${ui.resetArm?'color:var(--danger);border-color:var(--danger)':''}">${ui.resetArm?'Точно сбросить?':'Сбросить'}</button></div></div>`;
+  h+='</div>';return h;
+}
+function openSheet(d){
+  const p=defaultPortions(d);
+  document.getElementById('sheetIn').innerHTML=`<button class="btn sm sheet-x" data-act="close" aria-label="Закрыть">Закрыть</button><div class="kicker">${KIND[d.kind]} · ${d.cui}</div><h2>${d.name}</h2><p class="desc">${d.desc}</p>${metaRow(d,p)}
+    <details open><summary>Продукты ${portionNote(d,p)}</summary>${ingList(d,p)}</details>${stepsList(d)}
+    <div class="actions">${rateBtns(d)}<button class="btn primary" data-act="cook" data-id="${d.id}">Приготовил</button></div>`;
+  const dlg=document.getElementById('sheet');if(!dlg.open)dlg.showModal();
+}
+let toastT;
+function toast(m){const el=document.getElementById('toast');el.textContent=m;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,2600)}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;const id=b.dataset.id;
+  if(a!=='reset')ui.resetArm=false;
+  const sheet=document.getElementById('sheet');const inSheet=sheet.contains(b);
+  switch(a){
+    case 'tab':ui.tab=b.dataset.tab;saveUi();render();window.scrollTo(0,0);break;
+    case 'mode':ui.mode=b.dataset.v;ui.nowId=null;saveUi();render();break;
+    case 'ff':ui.fromFridge=!ui.fromFridge;ui.nowId=null;render();break;
+    case 'next':ui.nowId=(pickNow()||{}).id;render();break;
+    case 'rate':{const v=Number(b.dataset.v);if(state.r[id]===v)delete state.r[id];else state.r[id]=v;save();render();if(inSheet)openSheet(D[id]);
+      if(v===-1&&state.r[id]===-1&&!inSheet&&ui.tab==='now'){ui.nowId=(pickNow()||{}).id;render()}break}
+    case 'deck':{const v=Number(b.dataset.v);state.r[id]=v;save();render();break}
+    case 'cook':markCooked(D[id]);if(inSheet)sheet.close();break;
+    case 'open':openSheet(D[id]);break;
+    case 'close':sheet.close();break;
+    case 'regen':state.week=genWeek();save();render();toast('Новое меню собрано');break;
+    case 'swap':replaceSlot(Number(b.dataset.i));break;
+    case 'eaters':state.eaters=Number(b.dataset.v);save();render();break;
+    case 'copy':{const txt=shopText();const done=()=>toast('Список скопирован');
+      const fallback=()=>{const box=document.getElementById('copybox');box.innerHTML='<textarea class="copy" readonly></textarea>';const ta=box.firstChild;ta.value=txt;ta.focus();ta.select();toast('Выделил текст, скопируй вручную')};
+      try{navigator.clipboard.writeText(txt).then(done,fallback)}catch(err){fallback()}break}
+    case 'place':ui.place=b.dataset.v;render();break;
+    case 'fadd':{const k=b.dataset.k;const t=today();const z=ui.place==='freezer';
+      state.fridge.push({id:rid(),k,n:ingName(k),a:iso(t),e:iso(addDays(t,z?90:ING[k][2])),z});save();render();toast('Добавил: '+ingName(k).toLowerCase());break}
+    case 'fdel':state.fridge=state.fridge.filter(i=>i.id!==id);save();render();break;
+    case 'freeze':{const i=state.fridge.find(x=>x.id===id);if(i){i.z=true;i.e=iso(addDays(today(),90))}save();render();break}
+    case 'thaw':{const i=state.fridge.find(x=>x.id===id);if(i){i.z=false;i.e=iso(addDays(today(),1))}save();render();toast('Разморозь в холодильнике, срок — до завтра');break}
+    case 'ban':{const k=b.dataset.k;state.ban=state.ban.includes(k)?state.ban.filter(x=>x!==k):[...state.ban,k];save();render();break}
+    case 'filter':ui.filter=b.dataset.v;render();break;
+    case 'reset':if(!ui.resetArm){ui.resetArm=true;render()}else{state=blank();state.week=genWeek();ui.resetArm=false;save();render();toast('Всё сброшено')}break;
+  }
+});
+document.addEventListener('change',e=>{
+  const c=e.target.closest('[data-act="buy"]');if(!c)return;
+  const w=state.week;if(c.checked)w.bought[c.dataset.id]=true;else delete w.bought[c.dataset.id];save();render();
+});
+document.addEventListener('submit',e=>{
+  if(e.target.id!=='faddForm')return;e.preventDefault();
+  const v=document.getElementById('fname').value.trim();if(!v)return;
+  const t=today();const z=ui.place==='freezer';
+  state.fridge.push({id:rid(),k:null,n:v.slice(0,60),a:iso(t),e:iso(addDays(t,z?90:2)),z});save();render();toast('Добавил: '+v.slice(0,40));
+});
+document.getElementById('sheet').addEventListener('click',e=>{if(e.target.id==='sheet')e.target.close()});
+
+render();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{})}
+</script>
+</body>
+</html>
