@@ -72,6 +72,7 @@ button{font-family:inherit;cursor:pointer}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.ghost{background:transparent}
 .btn.sm{padding:6px 10px;font-size:13px;border-radius:10px}
+a.btn{display:inline-block;text-decoration:none}
 .btn[aria-pressed="true"].like{background:var(--herb-soft);color:var(--herb);border-color:var(--herb)}
 .btn[aria-pressed="true"].dis{background:var(--danger-soft);color:var(--danger);border-color:var(--danger)}
 button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -626,6 +627,7 @@ const DISHES=[
 ];
 const D=Object.fromEntries(DISHES.map(d=>[d.id,d]));
 const BANNABLE=['beef','mince','chicken_legs','turkey','tvorog','cheese','processed_cheese','smetana','cream','onion','carrot','garlic','cabbage','tomatoes','canned_tomatoes','cucumbers','bell_pepper','greens','frozen_veg','potato','rice','buckwheat','bulgur','pasta','oats','zira','khmeli','chicken_mince','tushenka','suluguni','beet','zucchini','eggplant','champignons','pickles'];
+const SIRI=['Что на ужин','Что купить','Покупки в Напоминания'];
 const FRIDGE_PRESETS=['chicken_thigh','chicken_legs','chicken_breast','turkey','turkey_mince','beef','mince','eggs','tvorog','cheese','processed_cheese','smetana','cream','butter','potato','onion','carrot','garlic','cabbage','tomatoes','cucumbers','bell_pepper','greens','frozen_veg','chicken_mince','tushenka','suluguni','beet','zucchini','eggplant','champignons','pickles','cooked_grain','cutlets','baked_meat','boiled_eggs','muffins'];
 
 /* ---------- даты ---------- */
@@ -856,22 +858,29 @@ function buildIcs(){
   const w=state.week,start=parse(w.start),sh=shopping(w),pp=prepPlan([w.slots[0].id,...w.extras]);
   const din=state.cal.dinner*60,prepAt=state.cal.prep*60,ev=[];
   const add=(day,at,dur,title,desc,alarm)=>ev.push({day,at,dur,title,desc,alarm});
-  const list=o=>Object.values(o).map(x=>'— '+ingName(x.k)+' — '+shopQty(x.q,x.u)).join('\n');
-  if(Object.keys(sh.hyper).length)add(0,prepAt-90,60,'Покупки в гипермаркете',list(sh.hyper),30);
+  const list=o=>Object.values(o).map(x=>ingName(x.k)+' — '+shopQty(x.q,x.u)).join('\n');
+  const lateNote=i=>w.late&&w.late[i]&&D[w.late[i]]?' Поздно вечером: '+D[w.late[i]].name.toLowerCase()+'.':'';
+  if(Object.keys(sh.hyper).length)add(0,prepAt-90,60,'Купить в гипермаркете',list(sh.hyper),30);
   add(0,prepAt,pp.total,'Заготовка: '+D[w.slots[0].id].name,pp.placed.map(p=>hm(p[0])+' '+p[2]+(p[3]?'':' (само)')).join('\n'),30);
   w.slots.forEach((s,i)=>{
-    if(s.role==='prep'||s.role==='left')return;const d=D[s.id];
-    add(i,din-d.total,d.total,(s.role==='batch'?'Запустить: ':'Ужин: ')+d.name,'Порций: '+portionsFor(d,i)+'\n'+d.steps.map((x,n)=>(n+1)+'. '+x).join('\n'),10);
+    const d=D[s.id];const steps=d.steps.map((x,n)=>(n+1)+'. '+x).join('\n');
+    if(s.role==='prep'||s.role==='left'){add(i,din,15,'Ужин: '+d.name+' — разогреть','Из заготовки, разогреть 3 минуты.'+lateNote(i),null);return}
+    if(s.role==='batch'){
+      add(i,din-d.total,d.total,'Запустить: '+d.name,'Порций: '+portionsFor(d,i)+'\n\n'+steps,10);
+      add(i,din,15,'Ужин: '+d.name,'Запущено в '+hm(din-d.total)+', к ужину будет готово.'+lateNote(i),null);return}
+    add(i,din-d.total,d.total,'Ужин: '+d.name,'Готовить '+d.total+' минут, белка '+d.prot+' грамм на порцию.'+lateNote(i)+'\n\nПорций: '+portionsFor(d,i)+'\n'+steps,10);
   });
   Object.keys(sh.local).forEach(day=>{day=Number(day);const s=w.slots[day];const d=D[s.id];
-    const at=(s.role==='prep'||s.role==='left'?din:din-d.total)-60;add(day,at,15,'По дороге домой купи',list(sh.local[day]),0)});
+    const at=(s.role==='prep'||s.role==='left'?din:din-d.total)-60;add(day,at,15,'Купить по дороге домой',list(sh.local[day]),0)});
   const now=Date.now();const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+Z$/,'Z');
   const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Sytno//Sytno doma//RU','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Сытно дома'];
   let n=0;
   ev.forEach(e=>{
     const day=addDays(start,e.day);const end=new Date(day);end.setMinutes(e.at+Math.max(15,e.dur));if(end.getTime()<now)return;
     L.push('BEGIN:VEVENT','UID:sytno-'+w.start+'-'+(n++)+'@agulaliev.github.io','DTSTAMP:'+stamp,'DTSTART:'+icsDate(day,e.at),'DTEND:'+icsDate(day,e.at+Math.max(15,e.dur)),
-      'SUMMARY:'+icsEsc(e.title),'DESCRIPTION:'+icsEsc(e.desc),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(e.title),'TRIGGER:'+(e.alarm?'-PT'+e.alarm+'M':'PT0M'),'END:VALARM','END:VEVENT');
+      'SUMMARY:'+icsEsc(e.title),'DESCRIPTION:'+icsEsc(e.desc));
+    if(e.alarm!=null)L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(e.title),'TRIGGER:'+(e.alarm?'-PT'+e.alarm+'M':'PT0M'),'END:VALARM');
+    L.push('END:VEVENT');
   });
   L.push('END:VCALENDAR');
   return {text:L.map(icsFold).join('\r\n')+'\r\n',count:n};
@@ -1050,6 +1059,11 @@ function rWeek(){
     <div style="display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:10px"><label class="small">Ужин к <select data-cal="dinner">${hours(17,22,state.cal.dinner)}</select></label><label class="small">Заготовка в <select data-cal="prep">${hours(9,17,state.cal.prep)}</select></label></div>
     <p class="small muted" style="margin-top:8px">Покупки, заготовка, когда начинать готовить, чтобы успеть к ужину, и что купить по дороге. Каждое событие с напоминанием.</p>
     <div class="actions" style="margin-top:12px"><button class="btn primary wide" data-act="ics">Добавить неделю в Календарь</button><button class="btn sm ghost" data-act="icsshare">Поделиться файлом</button></div></div>`;
+  h+=`<div class="card"><div class="label">Siri</div>
+    <p class="small" style="margin-top:8px">«Привет, Siri, <b>что на ужин</b>» — блюдо на сегодня и во сколько начинать. «<b>Что купить</b>» — что докупить сегодня. «<b>Покупки в Напоминания</b>» — список на неделю в Напоминания.</p>
+    <p class="small muted" style="margin-top:8px">Siri читает события из Календаря, поэтому сначала добавь неделю кнопкой выше. Команды ставятся один раз: нажми на команду → «Загрузить» → значок загрузки в адресной строке → файл → «Добавить».</p>
+    <div class="actions" style="margin-top:12px">${SIRI.map(n=>`<a class="btn sm" href="siri/${encodeURIComponent(n)}.shortcut" target="_blank" rel="noopener">${n}</a>`).join('')}</div>
+    <p class="small muted" style="margin-top:8px">Если добавить неделю в Календарь ещё раз, события задвоятся — старые удали в Календаре.</p></div>`;
   h+='<p class="small muted">Готовое ешь максимум 2 дня подряд: заготовка закрывает 2 ужина, в середине недели мультиварка делает ещё одну на 2 дня, остальные дни — быстрые блюда на 15–25 минут. Мясо на конец недели лучше купить в магазине у дома: так оно не залежится. Нажми «1 чел.», чтобы поменять число едоков на конкретный день.</p></div>';
   return h;
 }
