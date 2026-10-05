@@ -628,6 +628,7 @@ const DISHES=[
 const D=Object.fromEntries(DISHES.map(d=>[d.id,d]));
 const BANNABLE=['beef','mince','chicken_legs','turkey','tvorog','cheese','processed_cheese','smetana','cream','onion','carrot','garlic','cabbage','tomatoes','canned_tomatoes','cucumbers','bell_pepper','greens','frozen_veg','potato','rice','buckwheat','bulgur','pasta','oats','zira','khmeli','chicken_mince','tushenka','suluguni','beet','zucchini','eggplant','champignons','pickles'];
 const SIRI=['Что на ужин','Что купить','Покупки в Напоминания'];
+const siriUrl=n=>{const u=new URL('siri/'+encodeURIComponent(n)+'.shortcut',location.href).href;return navigator.standalone&&u.startsWith('https:')?'x-safari-'+u:u};
 const FRIDGE_PRESETS=['chicken_thigh','chicken_legs','chicken_breast','turkey','turkey_mince','beef','mince','eggs','tvorog','cheese','processed_cheese','smetana','cream','butter','potato','onion','carrot','garlic','cabbage','tomatoes','cucumbers','bell_pepper','greens','frozen_veg','chicken_mince','tushenka','suluguni','beet','zucchini','eggplant','champignons','pickles','cooked_grain','cutlets','baked_meat','boiled_eggs','muffins'];
 
 /* ---------- даты ---------- */
@@ -1062,7 +1063,7 @@ function rWeek(){
   h+=`<div class="card"><div class="label">Siri</div>
     <p class="small" style="margin-top:8px">«Привет, Siri, <b>что на ужин</b>» — блюдо на сегодня и во сколько начинать. «<b>Что купить</b>» — что докупить сегодня. «<b>Покупки в Напоминания</b>» — список на неделю в Напоминания.</p>
     <p class="small muted" style="margin-top:8px">Siri читает события из Календаря, поэтому сначала добавь неделю кнопкой выше. Команды ставятся один раз: нажми на команду → «Загрузить» → значок загрузки в адресной строке → файл → «Добавить».</p>
-    <div class="actions" style="margin-top:12px">${SIRI.map(n=>`<a class="btn sm" href="siri/${encodeURIComponent(n)}.shortcut" target="_blank" rel="noopener">${n}</a>`).join('')}</div>
+    <div class="actions" style="margin-top:12px">${SIRI.map(n=>`<a class="btn sm" href="${siriUrl(n)}">${n}</a>`).join('')}</div>
     <p class="small muted" style="margin-top:8px">Если добавить неделю в Календарь ещё раз, события задвоятся — старые удали в Календаре.</p></div>`;
   h+='<p class="small muted">Готовое ешь максимум 2 дня подряд: заготовка закрывает 2 ужина, в середине недели мультиварка делает ещё одну на 2 дня, остальные дни — быстрые блюда на 15–25 минут. Мясо на конец недели лучше купить в магазине у дома: так оно не залежится. Нажми «1 чел.», чтобы поменять число едоков на конкретный день.</p></div>';
   return h;
