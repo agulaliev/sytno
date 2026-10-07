@@ -773,7 +773,7 @@ const fFull=new Intl.DateTimeFormat('ru-RU',{weekday:'long',day:'numeric',month:
 
 /* ---------- состояние ---------- */
 const LS='sytno-state-v1';
-function blank(){return {v:1,eaters:1,r:{},c:{},lc:{},ban:[],fridge:[],prices:{},week:null,updated:0,lastBackup:null,cal:{dinner:19,prep:12}}}
+function blank(){return {v:1,eaters:1,r:{},c:{},lc:{},ban:[],fridge:[],prices:{},thrift:true,week:null,updated:0,lastBackup:null,cal:{dinner:19,prep:12}}}
 function normalize(s){
   const o=Object.assign(blank(),s||{});
   if(!o.cal)o.cal={dinner:19,prep:12};
@@ -836,7 +836,13 @@ function weight(d){
   if(isBanned(d)||state.r[d.id]===-1)return 0;
   let w=state.r[d.id]===1?4:isNew(d)?1.6:1;
   const lc=state.lc[d.id];if(lc&&diffDays(today(),parse(lc))<6)w*=.3;
-  return w;
+  return w*valueMul(d);
+}
+const protPerRub=d=>d.prot/Math.max(30,dishCost(d));
+function valueMul(d){
+  if(!state.thrift||d.fixed||d.kind==='base')return 1;
+  const all=DISHES.filter(x=>x.kind===d.kind).map(protPerRub).sort((a,b)=>a-b);
+  return Math.min(3,Math.max(.2,Math.pow(protPerRub(d)/all[all.length>>1],2)));
 }
 function pick(list,exclude){
   const c=list.filter(d=>!(exclude||[]).includes(d.id)).map(d=>[d,weight(d)]).filter(x=>x[1]>0);
@@ -1220,6 +1226,7 @@ function rWeek(){
   let h='<div class="stack">';
   h+=`<div class="dline"><div><h2>Меню на неделю</h2><p class="small muted">с ${fDm.format(start)} · ≈ ${sh.cost.toLocaleString('ru-RU')} ₽ на продукты</p></div><button class="btn sm" data-act="regen">Пересобрать</button></div>`;
   if(idx>6)h+=`<div class="note"><b>Неделя закончилась.</b> Нажми «Пересобрать», чтобы начать новую с сегодняшнего дня.</div>`;
+  h+=`<div class="dline" style="align-items:center"><span class="small muted">Подбор</span><div class="seg"><button data-act="thrift" data-v="1" aria-pressed="${!!state.thrift}">Сытно и дёшево</button><button data-act="thrift" data-v="0" aria-pressed="${!state.thrift}">Любые</button></div></div>`;
   h+=`<div class="dline" style="align-items:center"><span class="small muted">Едят во все дни</span><div class="seg">${[1,2,3].map(n=>`<button data-act="eaters" data-v="${n}" aria-pressed="${w.slots.every(s=>s.e===n)}">${n}</button>`).join('')}</div></div>`;
   h+=`<div class="card"><div class="label">День заготовки · ${fWd.format(start)}, ${fDm.format(start)}</div>
     <h3 style="margin-top:6px">≈ ${hm(pp.total)} на кухне, из них руками ≈ ${pp.active} мин</h3>
@@ -1365,6 +1372,7 @@ document.addEventListener('click',e=>{
     case 'close':sheet.close();break;
     case 'regen':state.week=genWeek();save();render();toast('Новое меню собрано');break;
     case 'swap':replaceSlot(Number(b.dataset.i));break;
+    case 'thrift':state.thrift=b.dataset.v==='1';state.week=genWeek();save();render();toast(state.thrift?'Меню пересобрано: сытно и дёшево':'Меню пересобрано без учёта цены');break;
     case 'eaters':{const n=Number(b.dataset.v);state.eaters=n;state.week.slots.forEach(s=>s.e=n);save();render();break}
     case 'deat':{const s=state.week.slots[Number(b.dataset.i)];s.e=s.e%3+1;save();render();break}
     case 'ics':exportIcs('download');break;
