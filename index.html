@@ -2085,8 +2085,8 @@ function rDishes(){
   h+=`<div class="card"><div class="label">Не ем</div><p class="small muted" style="margin-top:4px">Блюда с отмеченными продуктами пропадут из подбора.</p><div class="chips" style="margin-top:10px">${BANNABLE.map(k=>`<button class="chip ban" data-act="ban" data-k="${k}" aria-pressed="${state.ban.includes(k)}">${ingName(k)}</button>`).join('')}</div></div>`;
   const F={all:'Все',batch:'Заготовка',quick:'Быстро',build:'Из заготовки',lunch:'Обед',snack:'Перекусы',exp:'Эксперименты'};
   h+=`<div class="seg">${Object.entries(F).map(([k,v])=>`<button data-act="filter" data-v="${k}" aria-pressed="${ui.filter===k}">${v}</button>`).join('')}</div>`;
-  h+=`<div class="seg" style="margin-top:8px">${[[0,'Любое'],[15,'до 15 мин'],[30,'до 30'],[60,'до 60']].map(([v,n])=>`<button data-act="tfilter" data-v="${v}" aria-pressed="${ui.tmax===v}">${n}</button>`).join('')}</div>`;
-  const list=rateable.filter(d=>(ui.filter==='all'||(ui.filter==='exp'?d.exp:d.kind===ui.filter))&&(!ui.tmax||d.total<=ui.tmax));
+  h+=`<div class="seg" style="margin-top:8px">${[[0,'Любое'],[15,'до 15 мин'],[30,'15–30'],[60,'30–60']].map(([v,n])=>`<button data-act="tfilter" data-v="${v}" aria-pressed="${ui.tmax===v}">${n}</button>`).join('')}</div>`;
+  const list=rateable.filter(d=>(ui.filter==='all'||(ui.filter==='exp'?d.exp:d.kind===ui.filter))&&(!ui.tmax||d.total<=ui.tmax&&d.total>{15:0,30:15,60:30}[ui.tmax]));
   if(ui.tmax)list.sort((a,b)=>a.total-b.total);
   h+=`<p class="small muted" style="margin:8px 0 0">Найдено: ${list.length}</p>`;
   h+=`<div class="card" style="padding-block:4px"><div class="list">${list.map(d=>`<div class="item" style="flex-wrap:wrap"><div class="grow" style="min-width:180px"><button class="linkish" data-act="open" data-id="${d.id}">${d.name}</button><div class="small muted">${KIND[d.kind]}${d.exp?' · эксперимент':''} · ${d.total} мин · ${d.prot} г белка${state.c[d.id]?' · готовил '+state.c[d.id]+' р.':''}${isBanned(d)?' · <span style="color:var(--danger)">есть «не ем»</span>':''}</div></div><div style="display:flex;gap:6px">${rateBtns(d)}</div></div>`).join('')}</div></div>`;
