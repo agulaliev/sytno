@@ -1737,7 +1737,7 @@ function rWeek(){
   h+=`<div class="dline"><div><h2>Меню на неделю</h2><p class="small muted">с ${fDm.format(start)} · ≈ ${sh.cost.toLocaleString('ru-RU')} ₽ на продукты</p></div><button class="btn sm" data-act="regen">Пересобрать</button></div>`;
   if(idx>6)h+=`<div class="note"><b>Неделя закончилась.</b> Нажми «Пересобрать», чтобы начать новую с сегодняшнего дня.</div>`;
   h+=`<div class="dline" style="align-items:center"><span class="small muted">Подбор</span><div class="seg"><button data-act="thrift" data-v="1" aria-pressed="${!!state.thrift}">Сытно и дёшево</button><button data-act="thrift" data-v="0" aria-pressed="${!state.thrift}">Любые</button></div></div>`;
-  h+=`<div class="dline" style="align-items:center"><span class="small muted">Обед с собой</span><div class="seg">${[['work','Будни'],['all','Каждый день'],['off','Нет']].map(([v,n])=>`<button data-act="lunchmode" data-v="${v}" aria-pressed="${state.lunch===v}">${n}</button>`).join('')}</div></div>`;
+  h+=`<div class="dline" style="align-items:center"><span class="small muted">Обеды</span><div class="seg">${[['off','Без обедов'],['work','Будни'],['all','Все дни']].map(([v,n])=>`<button data-act="lunchmode" data-v="${v}" aria-pressed="${state.lunch===v}">${n}</button>`).join('')}</div></div>`;
   h+=`<div class="dline" style="align-items:center"><span class="small muted">Едят во все дни</span><div class="seg">${[1,2,3].map(n=>`<button data-act="eaters" data-v="${n}" aria-pressed="${w.slots.every(s=>s.e===n)}">${n}</button>`).join('')}</div></div>`;
   h+=`<div class="card"><div class="label">День заготовки · ${fWd.format(start)}, ${fDm.format(start)}</div>
     <h3 style="margin-top:6px">≈ ${hm(pp.total)} на кухне, из них руками ≈ ${pp.active} мин</h3>
