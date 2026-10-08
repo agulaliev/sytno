@@ -2205,6 +2205,11 @@ document.getElementById('cook').addEventListener('cancel',e=>{e.preventDefault()
 render();
 if(cook){renderCook();lockScreen();ensureTick()}
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+const swVer=()=>fetch('sw.js?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>(t.match(/CACHE='([^']+)'/)||[])[1]||null).catch(()=>null);
+let appVer=null;swVer().then(v=>appVer=v);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;
+  if('serviceWorker' in navigator)navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{});
+  swVer().then(v=>{if(v&&appVer&&v!==appVer&&!document.querySelector('dialog[open]'))location.reload()})});
 if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{})}
 </script>
 </body>
