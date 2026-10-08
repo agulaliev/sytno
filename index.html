@@ -1532,7 +1532,7 @@ function normalize(s){
 }
 let state=blank();
 try{const raw=localStorage.getItem(LS);if(raw)state=normalize(JSON.parse(raw))}catch(e){}
-let ui={tab:'now',mode:'20',fromFridge:false,nowId:null,filter:'all',place:'fridge',resetArm:false,undo:null,importData:null,sheet:null,wl:null,ppl:{}};
+let ui={tab:'now',mode:'20',fromFridge:false,nowId:null,filter:'all',tmax:0,place:'fridge',resetArm:false,undo:null,importData:null,sheet:null,wl:null,ppl:{}};
 try{const u=JSON.parse(localStorage.getItem('sytno-ui')||'{}');if(u.tab)ui.tab=u.tab;if(u.mode)ui.mode=u.mode}catch(e){}
 function saveUi(){try{localStorage.setItem('sytno-ui',JSON.stringify({tab:ui.tab,mode:ui.mode}))}catch(e){}}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
@@ -2085,7 +2085,10 @@ function rDishes(){
   h+=`<div class="card"><div class="label">Не ем</div><p class="small muted" style="margin-top:4px">Блюда с отмеченными продуктами пропадут из подбора.</p><div class="chips" style="margin-top:10px">${BANNABLE.map(k=>`<button class="chip ban" data-act="ban" data-k="${k}" aria-pressed="${state.ban.includes(k)}">${ingName(k)}</button>`).join('')}</div></div>`;
   const F={all:'Все',batch:'Заготовка',quick:'Быстро',build:'Из заготовки',lunch:'Обед',snack:'Перекусы',exp:'Эксперименты'};
   h+=`<div class="seg">${Object.entries(F).map(([k,v])=>`<button data-act="filter" data-v="${k}" aria-pressed="${ui.filter===k}">${v}</button>`).join('')}</div>`;
-  const list=rateable.filter(d=>ui.filter==='all'||(ui.filter==='exp'?d.exp:d.kind===ui.filter));
+  h+=`<div class="seg" style="margin-top:8px">${[[0,'Любое'],[15,'до 15 мин'],[30,'до 30'],[60,'до 60']].map(([v,n])=>`<button data-act="tfilter" data-v="${v}" aria-pressed="${ui.tmax===v}">${n}</button>`).join('')}</div>`;
+  const list=rateable.filter(d=>(ui.filter==='all'||(ui.filter==='exp'?d.exp:d.kind===ui.filter))&&(!ui.tmax||d.total<=ui.tmax));
+  if(ui.tmax)list.sort((a,b)=>a.total-b.total);
+  h+=`<p class="small muted" style="margin:8px 0 0">Найдено: ${list.length}</p>`;
   h+=`<div class="card" style="padding-block:4px"><div class="list">${list.map(d=>`<div class="item" style="flex-wrap:wrap"><div class="grow" style="min-width:180px"><button class="linkish" data-act="open" data-id="${d.id}">${d.name}</button><div class="small muted">${KIND[d.kind]}${d.exp?' · эксперимент':''} · ${d.total} мин · ${d.prot} г белка${state.c[d.id]?' · готовил '+state.c[d.id]+' р.':''}${isBanned(d)?' · <span style="color:var(--danger)">есть «не ем»</span>':''}</div></div><div style="display:flex;gap:6px">${rateBtns(d)}</div></div>`).join('')}</div></div>`;
   h+=`<div class="card tip"><h3>Что докупить на 10 тысяч</h3><ol>
     <li><b>Аэрогриль на 5–6 литров</b>, примерно 6–9 тыс. ₽. Курица, котлеты и картошка дольками за 20–25 минут без масла: положил, закрыл, ушёл. Заменяет духовку для 1–2 порций.</li>
@@ -2159,6 +2162,7 @@ document.addEventListener('click',e=>{
     case 'thaw':{const i=state.fridge.find(x=>x.id===id);if(i){i.z=false;i.e=iso(addDays(today(),1))}save();render();toast('Разморозь в холодильнике, срок — до завтра');break}
     case 'ban':{const k=b.dataset.k;state.ban=state.ban.includes(k)?state.ban.filter(x=>x!==k):[...state.ban,k];save();render();break}
     case 'filter':ui.filter=b.dataset.v;render();break;
+    case 'tfilter':ui.tmax=Number(b.dataset.v);render();break;
     case 'undo':if(ui.undo){state=normalize(JSON.parse(ui.undo));ui.undo=null;save();render();document.getElementById('toast').hidden=true}break;
     case 'backup':exportBackup();break;
     case 'restore':document.getElementById('importFile').click();break;
