@@ -49,6 +49,10 @@
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 img{max-width:100%}
+html,body{overflow-x:hidden}
+@supports (overflow:clip){html,body{overflow-x:clip}}
+.app{overflow-x:clip;touch-action:pan-y pinch-zoom}
+.scroller,.scroller *{touch-action:pan-x pan-y}
 [hidden]{display:none!important}
 button,a,summary,label{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 button{font-family:inherit;cursor:pointer;color:inherit}
