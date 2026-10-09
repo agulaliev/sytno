@@ -197,6 +197,8 @@ details.help>summary::before{content:"?";width:20px;height:20px;border-radius:50
 .ings{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-direction:column}
 .ings li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line)}
 .ings li:last-child{border-bottom:0}
+.ings em.nm{font-style:normal;display:flex;flex-direction:column}.ings em.nm small{color:var(--muted);font-size:13px;font-weight:400}
+.tools{margin:10px 0 0}.steps-h{margin:14px 0 0;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .ings li span:first-child{display:flex;align-items:center;gap:9px}
 .ings li span:first-child::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--surface-3);flex:none}
 .ings li.g-p span:first-child::before{background:var(--c-p)}.ings li.g-g span:first-child::before{background:var(--c-g)}
@@ -1623,11 +1625,11 @@ const DISHES=[
  ings:[['chicken_mince',600,'г'],['eggs',1,'шт'],['paprika',1,'ч.л.'],['garlic',2,'зубч.'],['potato',600,'г'],['cabbage',300,'г'],['carrot',1,'шт'],['mustard',2,'ч.л.'],['oil',2,'ст.л.']],
  steps:['Включи духовку на 210 °C. Картошку нарежь дольками, перемешай с {1} ст.л. масла и {0,5} ч.л. соли, выложи на противень.','Смешай {600} г фарша, {1|яйцо|яйца|яиц}, паприку, давленый чеснок и {0,75} ч.л. соли. Мокрыми руками скатай {8|колбаску|колбаски|колбасок} толщиной с палец.','Выложи колбаски рядом с картошкой и запекай всё 25 минут, на середине переверни.','Капусту нашинкуй тонко, морковь натри, посоли щепоткой, помни руками и заправь {1} ст.л. масла. Подавай с горчицей.'],
  fix:['Колбаски расплылись — фарш жидкий, добавь ложку овсянки.']},
-{id:'e_egg_quesadilla',name:'Кесадилья на омлете',kind:'quick',cui:'Американская',tool:'плита',active:15,total:20,serves:1.85,keep:0,prot:74,exp:1,
- desc:'Тонкий омлет вместо лепёшки, внутри курица, сыр, перец и кукуруза. Складывается пополам.',
- ings:[['eggs',6,'шт'],['chicken_breast',300,'г'],['cheese',100,'г'],['bell_pepper',1,'шт'],['corn',0.5,'банка'],['paprika',1,'ч.л.'],['oil',1,'ст.л.'],['tomatoes',1,'шт']],
- steps:['Курицу нарежь мелкими кубиками, посыпь паприкой и {0,5} ч.л. соли. Обжарь на {1} ст.л. масла 6 минут с нарезанным перцем. Добавь слитую кукурузу и выложи в тарелку.','Взбей {3|яйцо|яйца|яиц} со щепоткой соли. Вылей в ту же сковороду, накрой и держи 2 минуты на среднем огне.','На половину омлета выложи половину начинки и сыра, сложи пополам, прижми и держи минуту. Повтори с остальными яйцами.','Режь на треугольники, подавай с помидором.'],
- fix:['Омлет рвётся — подожди, пока верх схватится.']},
+{id:'e_egg_quesadilla',name:'Кесадилья на омлете',kind:'quick',cui:'Американская',tool:'плита',active:25,total:30,serves:1.85,keep:0,prot:74,exp:1,mise:5,tools:['сковорода 26–28 см с крышкой','доска и нож','тёрка','2 миски','вилка','лопатка'],big:'На 3 человек всё в одну сковороду не влезет. Раздели продукты пополам и сделай 2 раза подряд в той же сковороде — мыть её между заходами не нужно.',
+ desc:'Вкус кесадильи, но всё в одной сковороде: курица с перцем и кукурузой, сверху яйца и сыр под крышкой. Режется как пицца — ничего не надо складывать и переворачивать.',
+ ings:[['chicken_breast',300,'г','полосками в палец'],['eggs',6,'шт','взбить с солью'],['cheese',100,'г','натереть на крупной тёрке · или брынза, раскрошить руками'],['bell_pepper',1,'шт','полосками'],['corn',0.5,'банка','слить воду'],['tomatoes',1,'шт','дольками, на тарелку'],['paprika',1,'ч.л.'],['oil',1,'ст.л.']],
+ steps:['Открой банку кукурузы. Прижми крышку пальцами, оставив щель, и слей всю воду в раковину — в сковороду пойдут только зёрна. Возьми {0,5h|банку|банки|банок}, остаток убери в контейнер в холодильник.','Курицу ({300} г) нарежь полосками толщиной в палец и длиной 4–5 см. Мельче не надо: так быстрее режется и мясо сочнее. Сложи в миску, посыпь паприкой и {0,5} ч.л. соли, перемешай рукой.','Перец разрежь пополам, выломай хвостик с семенами и нарежь полосками в палец. Помидор нарежь дольками и сразу положи на тарелки — это будет к блюду.','Сыр натри на крупной тёрке прямо на доску или в тарелку. Нет твёрдого сыра — возьми брынзу или сулугуни и раскроши руками на кусочки с ноготь.','Разбей {6|яйцо|яйца|яиц} во вторую миску, добавь {0,25} ч.л. соли и взбей вилкой 30 секунд, пока белок и желток не смешаются.','Налей {1} ст.л. масла в сковороду, поставь на средний огонь на 2 минуты. Выложи курицу одним слоем и жарь 6 минут, переворачивая лопаткой, пока со всех сторон не побелеет.','Добавь перец и кукурузу, жарь 3 минуты, помешивая.','Разровняй начинку лопаткой по всему дну и залей яйцами. Не мешай. Накрой крышкой, убавь огонь до слабого и держи 5 минут. Под крышкой омлет вздуется — это нормально, потом осядет.','Посыпь сыром, снова накрой и держи 2 минуты, пока сыр не расплавится, а сверху не останется жидкого яйца.','Выключи огонь. Разрежь лопаткой прямо в сковороде на куски, как пиццу, — по 2 на человека, и переложи лопаткой на тарелки к помидору.'],
+ fix:['На дне вода — кукуруза слита не до конца или перец дал сок. Перед яйцами подержи начинку 2 минуты без крышки, вода выкипит.','Верх ещё жидкий, а низ уже тёмный — огонь сильный. Убавь до самого слабого и подержи ещё 2 минуты под крышкой.','Кусок разваливается при перекладывании — дай постоять 2 минуты без огня, потом режь.']},
 {id:'e_cheeseburger_casserole',name:'Чизбургер-запеканка',kind:'quick',cui:'Американская',tool:'духовка',active:20,total:50,serves:3.05,keep:2,prot:46,exp:1,
  desc:'Вкус чизбургера в форме: фарш с луком и огурчиками, картошка, яйцо с горчицей и сыр сверху.',
  ings:[['mince',500,'г'],['potato',700,'г'],['onion',1,'шт'],['pickles',2,'шт'],['cheese',100,'г'],['eggs',2,'шт'],['mustard',2,'ч.л.'],['tomato_paste',1,'ст.л.']],
@@ -1949,8 +1951,8 @@ function shopping(w){
     d.ings.forEach(([k,q,u])=>{
       if(isReady(k))return;if(isPantry(k)){pantry.add(k);return}
       const shelf=ING[k][2];const key=k+'|'+u;
-      if(day>shelf){local[day]=local[day]||{};const L=local[day];L[key]=L[key]||{k,u,q:0};L[key].q+=q*f}
-      else{hyper[key]=hyper[key]||{k,u,q:0};hyper[key].q+=q*f}
+      if(day>shelf){local[day]=local[day]||{};const L=local[day];L[key]=L[key]||{k,u,q:0};L[key].q+=q*f*goalF(d,k)}
+      else{hyper[key]=hyper[key]||{k,u,q:0};hyper[key].q+=q*f*goalF(d,k)}
     });
   });
   const cost=[...Object.values(hyper),...Object.values(local).flatMap(Object.values)].reduce((s,x)=>s+x.q*unitCost(x.k,x.u),0);
@@ -2110,9 +2112,9 @@ function renderCook(){
   const dlg=document.getElementById('cook');if(!cook){if(dlg.open)dlg.close();return}
   const d=D[cook.id];const n=d.steps.length;const s=cook.step;
   let body;
-  if(s<0){const bn=bigNote(d,cook.p);body=`<div class="hero-top" style="align-items:center">${plateSvg(d,84,{goal:goalOn(),k:plate(d).k})}<div class="grow"><div class="kicker">Подготовка</div><h2 class="h-dish">${d.name}</h2></div></div>${pplPicker(d,cook.p,'cook')}<h3 style="margin-top:20px">Сначала достань всё нужное</h3>${ingList(d,cook.p)}${bn?`<p class="small note" style="margin-top:12px">${bn}</p>`:''}`}
+  if(s<0){const bn=bigNote(d,cook.p);body=`<div class="hero-top" style="align-items:center">${plateSvg(d,84,{goal:goalOn(),k:plate(d).k})}<div class="grow"><div class="kicker">Подготовка</div><h2 class="h-dish">${d.name}</h2></div></div>${pplPicker(d,cook.p,'cook')}<h3 style="margin-top:20px">Сначала достань всё нужное</h3>${toolsLine(d)}${ingList(d,cook.p)}${bn?`<p class="small note" style="margin-top:12px">${bn}</p>`:''}`}
   else{const st=stepText(d,s,cook.p);const tms=stepTimers(st);
-    body=`<div class="cook-num">${s+1}<span class="small muted" style="font-family:var(--body);font-size:15px;letter-spacing:0;margin-left:6px">из ${n}</span></div><p class="cook-step">${st}</p>${helpBlocks(d,d.steps[s],false)}${tms.length?`<div class="chips" style="margin-top:22px">${tms.map(m=>`<button class="btn" data-act="tstart" data-m="${m}">${ICON.timer}Таймер ${m>=60?hm(m)+' ч':m+' мин'}</button>`).join('')}</div>`:''}`}
+    body=`<div class="cook-num">${s+1}<span class="small muted" style="font-family:var(--body);font-size:15px;letter-spacing:0;margin-left:6px">из ${n}</span></div>${d.mise?`<div class="kicker" style="margin-top:6px">${s<d.mise?'До плиты':d.tool==='духовка'?'Готовка':'На плите'}</div>`:''}<p class="cook-step">${st}</p>${helpBlocks(d,d.steps[s],false)}${tms.length?`<div class="chips" style="margin-top:22px">${tms.map(m=>`<button class="btn" data-act="tstart" data-m="${m}">${ICON.timer}Таймер ${m>=60?hm(m)+' ч':m+' мин'}</button>`).join('')}</div>`:''}`}
   document.getElementById('cookIn').innerHTML=`
     <div class="cook-top"><div class="grow"><div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.name}, ${portionNote(d,cook.p)}</div></div><button class="btn sm" data-act="cookclose">Закрыть</button></div>
     <div class="cook-dots" aria-label="Шаг ${s+1} из ${n}">${d.steps.map((_,j)=>`<i class="${j<=s?'on':''}"></i>`).join('')}</div>
@@ -2233,14 +2235,14 @@ function plateBox(d){
 function goalNote(d){
   if(!goalOn()||d.kind==='base')return '';
   const pl=plate(d);const parts=[];const b=d.kind==='snack'?lateBudget():dinnerBudget();
-  if(pl.fr<1)parts.push(`положи ${frac(pl.fr)} обычной порции`);
-  if(pl.cut)parts.push(`гарнира половину, ≈ ${pl.gG} г готового`);
-  if(!parts.length)return `<div class="goalnote"><b>Укладывается в цель.</b> Ужин до ${b} ккал — ешь обычную порцию.</div>`;
-  return `<div class="goalnote"><b>Под цель ≈ ${pl.k} ккал</b> вместо ${pl.full}: ${parts.join(', ')}.</div>`;
+  if(pl.fr<1)parts.push(pl.fr<=.5?'всё вдвое меньше':`всё на ${frac(1-pl.fr)} меньше`);
+  if(pl.cut)parts.push('гарнира вдвое меньше');
+  if(!parts.length)return `<div class="goalnote"><b>Укладывается в цель.</b> Ужин до ${b} ккал — обычная порция.</div>`;
+  return `<div class="goalnote"><b>Рецепт уже пересчитан под цель:</b> ≈ ${pl.k} ккал на человека вместо ${pl.full} (${parts.join(', ')}). Продукты и шаги ниже — уже с новыми количествами, считать ничего не надо: готовь и ешь всё, что получилось.</div>`;
 }
 function facts(d){
   const pl=plate(d);
-  return `<div class="facts"><div class="f-k"><b>${pl.k}</b><span>ккал${goalOn()&&pl.k!==pl.full?' под цель':''}</span></div><div class="f-p"><b>${d.prot} г</b><span>белка</span></div><div><b>${d.total>=60?hm(d.total):d.total+' мин'}</b><span>${d.total>d.active?d.active+' мин руками':'всего'}</span></div></div>`;
+  return `<div class="facts"><div class="f-k"><b>${pl.k}</b><span>ккал${goalOn()&&pl.k!==pl.full?' под цель':''}</span></div><div class="f-p"><b>${goalOn()?Math.round(d.prot*pl.fr):d.prot} г</b><span>белка</span></div><div><b>${d.total>=60?hm(d.total):d.total+' мин'}</b><span>${d.total>d.active?d.active+' мин руками':'всего'}</span></div></div>`;
 }
 function metaRow(d){
   return `<div class="meta"><span>${ICON.coin}≈ ${Math.round(dishCost(d)/10)*10} ₽ порция</span><span>${ICON.pot}${d.tool}</span></div>`;
@@ -2250,7 +2252,7 @@ function dishBadges(d,extra){
 }
 function ingList(d,portions){
   const f=portions/d.serves;
-  return `<ul class="ings">${d.ings.map(([k,q,u])=>{const g=ingGroup(k);return `<li class="${g?'g-'+g:''}${!isPantry(k)&&hasKey(k)?' have':''}"><span>${ingName(k)}</span><span>${recipeQty(k,q*f,u)}</span></li>`}).join('')}</ul>`;
+  return `<ul class="ings">${d.ings.map(([k,q,u,pr])=>{const g=ingGroup(k);return `<li class="${g?'g-'+g:''}${!isPantry(k)&&hasKey(k)?' have':''}"><span><em class="nm">${ingName(k)}${pr?`<small>${pr}</small>`:''}</em></span><span>${recipeQty(k,q*f*goalF(d,k),u)}</span></li>`}).join('')}</ul>`;
 }
 function emptyArt(){return `<svg class="art" viewBox="0 0 120 70" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><ellipse cx="60" cy="40" rx="30" ry="22" opacity=".5"/><ellipse cx="60" cy="40" rx="19" ry="13" opacity=".3"/><path d="M18 18v14a4 4 0 0 0 4 4v22M22 18v14M26 18v14a4 4 0 0 1-4 4M98 58V18c4 2 6 7 6 14v6h-6"/></svg>`}
 function row(o){
@@ -2524,8 +2526,13 @@ function scaleStep(t,k){
     return num(Math.round(v*10)/10)+u});
 }
 function stepK(d,p){return d.fixed||!p?1:p/d.serves}
-function stepText(d,i,p){return scaleStep(d.steps[i],stepK(d,p))}
+function goalF(d,k){if(!goalOn()||d.fixed||d.kind==='base')return 1;const pl=plate(d);return pl.fr*(pl.cut&&GARN.has(k)?1-pl.cut:1)}
+function isGarnStep(t){return /^(Сначала поставь гарнир|Параллельно свари гарнир|Налей в большую кастрюлю)/.test(t)}
+function stepText(d,i,p){const t=d.steps[i];return scaleStep(t,stepK(d,p)*goalF(d,isGarnStep(t)?'rice':''))}
+function toolsLine(d){return d.tools?`<p class="small tools"><b>Посуда:</b> ${d.tools.join(', ')}</p>`:''}
+function stepsOl(d,p,from,to){return `<ol class="steps" style="counter-reset:st ${from}">${d.steps.slice(from,to).map((s,i)=>`<li>${stepText(d,from+i,p)}</li>`).join('')}</ol>`}
 function bigNote(d,p){const k=stepK(d,p);
+  if(d.big&&k>=1.4)return d.big;
   if(d.kind==='build'&&p>1)return 'Шаги — на одну тарелку. Собери так же каждому, греть можно по очереди.';
   if(d.kind==='lunch'&&p>1)return 'Шаги — на один контейнер. Собери так же каждому.';
   if(d.tool==='мультиварка'&&k>=1.7)return 'Продуктов много: проверь, что в чаше всё ниже отметки MAX. Если не влезает — раздели на две закладки. Тушение может занять на 10–15 минут дольше, смотри на признаки готовности.';
@@ -2534,7 +2541,7 @@ function bigNote(d,p){const k=stepK(d,p);
   return ''}
 function ingsBlock(d,p,key){return `<details class="fold sub" data-fold="${key}"${fold(key,true)}><summary><b>Продукты ${portionNote(d,p)}</b></summary>${ingList(d,p)}</details>`}
 function stepsList(d,p,key,def){const n=bigNote(d,p);
-  return `<details class="fold sub" data-fold="${key}"${fold(key,def)}><summary><b>Как готовить</b><span class="small muted">${d.steps.length} ${plural(d.steps.length,'шаг','шага','шагов')}</span></summary>${n?`<p class="small note" style="margin:10px 0 0">${n}</p>`:''}<ol class="steps">${d.steps.map((s,i)=>`<li>${stepText(d,i,p)}</li>`).join('')}</ol>${helpBlocks(d,d.steps.join(' '),false)}</details>`}
+  return `<details class="fold sub" data-fold="${key}"${fold(key,def)}><summary><b>Как готовить</b><span class="small muted">${d.steps.length} ${plural(d.steps.length,'шаг','шага','шагов')}</span></summary>${n?`<p class="small note" style="margin:10px 0 0">${n}</p>`:''}${toolsLine(d)}${d.mise?`<p class="steps-h">До плиты — подготовь всё заранее</p>${stepsOl(d,p,0,d.mise)}<p class="steps-h">${d.tool==='духовка'?'Готовка':'На плите'}</p>${stepsOl(d,p,d.mise,d.steps.length)}`:stepsOl(d,p,0,d.steps.length)}${helpBlocks(d,d.steps.join(' '),false)}</details>`}
 const pplMult=d=>d.kind==='batch'?2:1;
 function pplOf(d,p){const n=p/pplMult(d);return Number.isInteger(n)&&n>=1&&n<=3?n:0}
 function curP(d,day){const n=ui.ppl[d.id];return n&&!d.fixed&&d.kind!=='base'?n*pplMult(d):portionsFor(d,day)}
