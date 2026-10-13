@@ -2603,6 +2603,7 @@ function closeSheet(){if(sheetEl.open)sheetEl.close();ui.sheet=null}
 function refreshSheet(){const s=ui.sheet;if(!s||!sheetEl.open)return;if(s.type==='dish')openSheet(D[s.id],s.day);else if(s.type==='goal')openGoal();else if(s.type==='settings')openSettings()}
 function getTheme(){try{return localStorage.getItem('sytno-theme')||''}catch(e){return ''}}
 function setTheme(v){try{v?localStorage.setItem('sytno-theme',v):localStorage.removeItem('sytno-theme')}catch(e){}if(v)document.documentElement.dataset.theme=v;else delete document.documentElement.dataset.theme}
+const APP_VER='sytno-v27';
 function openSettings(){
   const th=getTheme();
   let h=`<h2>Настройки</h2><section class="gsec"><div class="label">Тема</div><div class="seg" style="margin-top:8px">${[['','Как в системе'],['light','Светлая'],['dark','Тёмная']].map(([v,n])=>`<button data-act="theme" data-v="${v}" aria-pressed="${th===v}">${n}</button>`).join('')}</div></section>`;
@@ -2757,11 +2758,11 @@ render();
 if(cook){renderCook();lockScreen();ensureTick()}
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 const swVer=()=>fetch('sw.js?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>(t.match(/CACHE='([^']+)'/)||[])[1]||null).catch(()=>null);
-let appVer=null,lastDay=iso(today());swVer().then(v=>appVer=v);
+const appVer=APP_VER;let lastDay=iso(today());swVer().then(v=>{if(v&&v!==appVer&&!sessionStorage.getItem('rl'+v)){sessionStorage.setItem('rl'+v,1);location.reload()}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;
   if(iso(today())!==lastDay){lastDay=iso(today());ui.nowId=null;ui.wday=null;render()}else renderChrome();
   if('serviceWorker' in navigator)navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{});
-  swVer().then(v=>{if(v&&appVer&&v!==appVer&&!document.querySelector('dialog[open]'))location.reload()})});
+  swVer().then(v=>{if(v&&v!==appVer&&!document.querySelector('dialog[open]')&&!sessionStorage.getItem('rl'+v)){sessionStorage.setItem('rl'+v,1);location.reload()}})});
 if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{})}
 </script>
 </body>
