@@ -1789,6 +1789,7 @@ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function diffDays(a,b){return Math.round((parse(iso(a))-parse(iso(b)))/DAY)}
 const fWd=new Intl.DateTimeFormat('ru-RU',{weekday:'short'});
 const fDm=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short'});
+const fWdL={format:d=>['воскресенье','понедельник','вторник','среду','четверг','пятницу','субботу'][d.getDay()]};
 const fFull=new Intl.DateTimeFormat('ru-RU',{weekday:'long',day:'numeric',month:'long'});
 
 /* ---------- состояние ---------- */
@@ -1826,6 +1827,8 @@ function ingName(k){return ING[k]?ING[k][0]:k}
 function isPantry(k){return ING[k]&&ING[k][3]===1}
 function isReady(k){return ING[k]&&ING[k][1]==='ready'}
 function mainProtein(d){const m=d.ings.find(i=>ING[i[0]]&&ING[i[0]][1]==='meat');if(!m)return 'eggs';const k=m[0];return k.startsWith('chicken')?'chicken':k.startsWith('turkey')?'turkey':k==='mince'?'beef':k}
+function defaultStart(){const t=today();const wd=(t.getDay()+6)%7;return wd>=5?addDays(t,7-wd):addDays(t,-wd)}
+function weekStart(){const w=state.week;const i=todayIdx();return w&&i<=6?w.start:iso(defaultStart())}
 function todayIdx(){return state.week?diffDays(today(),parse(state.week.start)):-1}
 function soloN(){return state.solo||1}
 function eatersOn(i){const w=state.week;if(!w||i<0||i>6)return state.eaters;return w.slots[i].e||state.eaters}
@@ -1889,7 +1892,7 @@ function genWeek(){
   const extras=['p_grain','s_eggs'];
   if(A.tool!=='духовка')extras.push(Math.random()<.65?'s_buzh':'s_muffins');
   const e=state.eaters;
-  const w={start:iso(today()),slots:[
+  const w={start:weekStart(),slots:[
     {role:'prep',id:A.id,e},{role:'left',id:A.id,e},{role:'batch',id:B.id,e},{role:'left',id:B.id,e},
     {role:'quick',id:Q1.id,e},{role:'quick',id:Q2.id,e},{role:'spare',id:Q3.id,e}],extras,late:[],bought:{}};
   w.late=genLate(w);w.lunch=genLunch(w);
@@ -2316,7 +2319,7 @@ function rWeek(){
   let h='<div class="stack">';
   h+=`<div class="dline" style="align-items:center"><div><h2>Неделя</h2><p class="small muted">с ${fDm.format(start)} по ${fDm.format(addDays(start,6))}</p></div><button class="btn sm" data-act="regen">${ICON.refresh}Пересобрать</button></div>`;
   h+=`<div class="stats"><div><span>продукты</span><b>≈ ${sh.cost.toLocaleString('ru-RU')} ₽</b></div><div><span>ужин, ср.</span><b>${avgK} ккал</b></div><div><span>белок, ср.</span><b>${avgP} г</b></div></div>`;
-  if(idx>6)h+=`<div class="note"><b>Неделя закончилась.</b> Нажми «Пересобрать», чтобы начать новую с сегодняшнего дня.</div>`;
+  h+=startBanner(w,idx);
   h+=`<div class="dstrip" role="tablist" aria-label="Дни недели">${w.slots.map((x,j)=>{const dd=addDays(start,j);
     return `<button role="tab" data-act="wday" data-i="${j}" aria-pressed="${j===i}" class="${j===idx?'today':''}${j<idx?' past':''}" aria-label="${fWd.format(dd)}, ${fDm.format(dd)}: ${D[x.id].name}"><span class="wd">${j===idx?'сегодня':fWd.format(dd)}</span><span class="dn">${dd.getDate()}</span>${plateSvg(D[x.id],34,{goal:goalOn()})}<span class="role r-${x.role}"></span>${sh.local[j]?'<span class="pin" title="Купить по дороге"></span>':''}</button>`}).join('')}</div>`;
   h+=`<section class="card daycard"><div class="dayhead"><div class="chips"><span class="badge ${ROLE[s.role][1]}">${ROLE[s.role][0]}</span>${d.exp&&s.role!=='left'?'<span class="badge b-exp">эксперимент</span>':isNew(d)&&s.role!=='left'?'<span class="badge b-new">новое</span>':''}</div><span class="small muted nowrap">${i===idx?'сегодня, ':''}${fWd.format(day)} ${fDm.format(day)}</span></div>
@@ -2349,6 +2352,11 @@ function rWeek(){
   return h+'</div>';
 }
 
+function startBanner(w,idx){
+  if(idx===0||idx>6)return '';const start=parse(w.start);const any=Object.values(w.bought||{}).some(Boolean);
+  const txt=idx<0?`Неделя начнётся в ${fWdL.format(start)}, ${fDm.format(start).replace(/\.$/,'')}. Хочешь начать раньше — начни сегодня.`
+    :`Неделя по плану началась в ${fWdL.format(start)}, ${fDm.format(start).replace(/\.$/,'')}. Не успел закупиться или начать — начни с сегодня: меню, обеды и покупки сдвинутся на 7 дней вперёд от сегодня.${any?' Отметки «куплено» сохранятся.':''}`;
+  return `<div class="plan" style="flex-direction:column;align-items:flex-start"><div class="small">${txt}</div><button class="btn sm primary" data-act="startnow">${ICON.play}Начать с сегодня</button></div>`}
 /* ----- Покупки ----- */
 function ringSvg(done,all,size){
   const C=2*Math.PI*22,f=all?done/all:0;
@@ -2369,6 +2377,7 @@ function rShop(){
   const seg=(act,v)=>`<div class="seg">${[1,2,3].map(n=>`<button data-act="${act}" data-v="${n}" aria-pressed="${n===v}">${n}</button>`).join('')}</div>`;
   const dinE=w.slots.every(s=>s.e===w.slots[0].e)?w.slots[0].e:0;
   let h=`<div class="stack"><div class="dline" style="align-items:center"><h2>Покупки</h2><div style="display:flex;gap:6px"><button class="icon-btn" data-act="copy" aria-label="Скопировать список" title="Скопировать">${ICON.copy}</button>${navigator.share?`<button class="icon-btn" data-act="shopshare" aria-label="Отправить список" title="Отправить">${ICON.share}</button>`:''}</div></div>`;
+  h+=startBanner(w,idx);
   h+=`<section class="card"><div class="ring-head">${ringSvg(doneAll,keysAll.length,64)}<div class="grow"><b>${doneAll} из ${keysAll.length} куплено</b><p class="small muted">на неделю с ${fDm.format(start)}, ≈ <span id="shopTotal">${sh.cost.toLocaleString('ru-RU')}</span> ₽. Отмеченное само попадёт в «Запасы».</p></div></div>
     <div class="ppl"><span class="label">Ужины на</span>${seg('eaters',dinE)}</div>
     <div class="ppl"><span class="label">Обеды, перекусы и заготовки на</span>${seg('solo',soloN())}</div>
@@ -2486,7 +2495,7 @@ const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 function fold(key,def){const v=ui.folds[key];return (v!==undefined?v:def)?' open':''}
 function render(){
   document.getElementById('sync').textContent=fFull.format(today());
-  if(!state.week){state.week=genWeek();save()}
+  if(!state.week||todayIdx()>6){state.week=genWeek();ui.wday=null;save()}
   if(!state.week.lunch){state.week.lunch=genLunch(state.week);save()}
   renderChrome();
   view.innerHTML=({now:rNow,week:rWeek,shop:rShop,fridge:rFridge,dishes:rDishes}[ui.tab]||rNow)();
@@ -2652,6 +2661,7 @@ document.addEventListener('click',e=>{
     case 'close':closeSheet();break;
     case 'goal':openGoal();break;
     case 'settings':openSettings();break;
+    case 'startnow':{const prev=JSON.stringify(state);const w=state.week;Object.keys(ui.folds).forEach(k=>{if(k.startsWith('wd')||k.startsWith('shl'))delete ui.folds[k]});w.start=iso(today());w.lunch=genLunch(w);ui.wday=null;save();saveUi();render();toast('Неделя начинается сегодня',prev);break}
     case 'regen':{const prev=JSON.stringify(state);Object.keys(ui.folds).forEach(k=>{if(k.startsWith('wd')||k.startsWith('shl'))delete ui.folds[k]});state.week=genWeek();ui.wday=null;save();saveUi();render();toast('Новое меню собрано',prev);break}
     case 'swap':replaceSlot(Number(b.dataset.i));break;
     case 'thrift':state.thrift=b.dataset.v==='1';state.week=genWeek();save();render();toast(state.thrift?'Меню пересобрано: сытно и дёшево':'Меню пересобрано без учёта цены');break;
