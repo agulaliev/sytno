@@ -2353,9 +2353,12 @@ function rWeek(){
 }
 
 function startBanner(w,idx){
-  if(idx===0||idx>6)return '';const start=parse(w.start);const any=Object.values(w.bought||{}).some(Boolean);
+  if(idx>6)return '';const start=parse(w.start);const any=Object.values(w.bought||{}).some(Boolean);const dm=d=>fDm.format(d).replace(/\.$/,'');
+  if(idx===0){const wd=(start.getDay()+6)%7;const mon=addDays(start,7-wd);
+    return `<div class="plan" style="flex-direction:column;align-items:flex-start"><div class="small">Неделя начинается сегодня и идёт по ${dm(addDays(start,6))} включительно. Не успеешь закупиться и начать сегодня — завтра здесь будет кнопка «Начать с сегодня».${wd?` Хочешь начать позже — перенеси на понедельник, ${dm(mon)}.`:''}</div>${wd?`<button class="btn sm" data-act="startmon">${ICON.cal}Перенести на понедельник</button>`:''}</div>`}
+  if(idx>0&&any)return '';
   const txt=idx<0?`Неделя начнётся в ${fWdL.format(start)}, ${fDm.format(start).replace(/\.$/,'')}. Хочешь начать раньше — начни сегодня.`
-    :`Неделя по плану началась в ${fWdL.format(start)}, ${fDm.format(start).replace(/\.$/,'')}. Не успел закупиться или начать — начни с сегодня: меню, обеды и покупки сдвинутся на 7 дней вперёд от сегодня.${any?' Отметки «куплено» сохранятся.':''}`;
+    :`Неделя по плану началась в ${fWdL.format(start)}, ${fDm.format(start).replace(/\.$/,'')}. Не успел закупиться или начать — начни с сегодня: меню, обеды и покупки сдвинутся на 7 дней вперёд от сегодня.`;
   return `<div class="plan" style="flex-direction:column;align-items:flex-start"><div class="small">${txt}</div><button class="btn sm primary" data-act="startnow">${ICON.play}Начать с сегодня</button></div>`}
 /* ----- Покупки ----- */
 function ringSvg(done,all,size){
@@ -2603,7 +2606,7 @@ function closeSheet(){if(sheetEl.open)sheetEl.close();ui.sheet=null}
 function refreshSheet(){const s=ui.sheet;if(!s||!sheetEl.open)return;if(s.type==='dish')openSheet(D[s.id],s.day);else if(s.type==='goal')openGoal();else if(s.type==='settings')openSettings()}
 function getTheme(){try{return localStorage.getItem('sytno-theme')||''}catch(e){return ''}}
 function setTheme(v){try{v?localStorage.setItem('sytno-theme',v):localStorage.removeItem('sytno-theme')}catch(e){}if(v)document.documentElement.dataset.theme=v;else delete document.documentElement.dataset.theme}
-const APP_VER='sytno-v27';
+const APP_VER='sytno-v28';
 function openSettings(){
   const th=getTheme();
   let h=`<h2>Настройки</h2><section class="gsec"><div class="label">Тема</div><div class="seg" style="margin-top:8px">${[['','Как в системе'],['light','Светлая'],['dark','Тёмная']].map(([v,n])=>`<button data-act="theme" data-v="${v}" aria-pressed="${th===v}">${n}</button>`).join('')}</div></section>`;
@@ -2662,6 +2665,7 @@ document.addEventListener('click',e=>{
     case 'close':closeSheet();break;
     case 'goal':openGoal();break;
     case 'settings':openSettings();break;
+    case 'startmon':{const prev=JSON.stringify(state);const w=state.week;const t=today();const wd=(t.getDay()+6)%7;Object.keys(ui.folds).forEach(k=>{if(k.startsWith('wd')||k.startsWith('shl'))delete ui.folds[k]});w.start=iso(addDays(t,wd?7-wd:0));w.lunch=genLunch(w);ui.wday=null;save();saveUi();render();toast('Неделя начнётся в понедельник',prev);break}
     case 'startnow':{const prev=JSON.stringify(state);const w=state.week;Object.keys(ui.folds).forEach(k=>{if(k.startsWith('wd')||k.startsWith('shl'))delete ui.folds[k]});w.start=iso(today());w.lunch=genLunch(w);ui.wday=null;save();saveUi();render();toast('Неделя начинается сегодня',prev);break}
     case 'regen':{const prev=JSON.stringify(state);Object.keys(ui.folds).forEach(k=>{if(k.startsWith('wd')||k.startsWith('shl'))delete ui.folds[k]});state.week=genWeek();ui.wday=null;save();saveUi();render();toast('Новое меню собрано',prev);break}
     case 'swap':replaceSlot(Number(b.dataset.i));break;
